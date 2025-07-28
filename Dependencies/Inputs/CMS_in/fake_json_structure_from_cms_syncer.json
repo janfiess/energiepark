@@ -1,0 +1,121 @@
+{
+	"data": [
+		{
+			"id":1,
+			"mqtt_message":"democontent1",
+			"Looped":true,
+			"Successor":false,
+			"is_generative_content": 0,
+			"button_mqtt_action":"democontent2",
+			"button_pos_x":800,
+			"button_pos_y":100,
+			"localizations":{
+				"en":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent1_en.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/1.mp4"
+				  	},
+					"Generative_content": false,
+					"button_text":"Democontent 2 EN"
+
+				},
+				"de-CH":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent1_de.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/2.mp4"
+					},
+					"Generative_content": false,
+					"button_text":"Democontent 2 DE"
+				},
+				"fr":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent1_fr.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/3.mp4"
+					},
+					"Generative_content": false,
+					"button_text":"Democontent 2 FR"
+				}
+			}
+		},
+
+		{
+			"id":2,
+			"mqtt_message":"democontent2",
+			"Looped":false,
+			"Successor":"democontent1",
+			"is_generative_content": 0,
+			"button_mqtt_action":"democontent3",
+			"button_pos_x":800,
+			"button_pos_y":800,
+			"localizations":{
+				"en":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent2_en.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/4.mp4"
+				  	},
+					"Generative_content": false,
+					"button_text":"Democontent 3 EN"
+				},
+				"de-CH":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent2_de.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/5.mp4"
+					},
+					"Generative_content": false,
+					"button_text":"Democontent 3 DE"
+				},
+				"fr":{
+					"Video":{
+						"url":f"{project.folder}/Assets/democontent2_fr.mp4"
+					},
+					"Extra":{
+						"url":f"{project.folder}/Assets/6.mp4"
+					},
+					"Generative_content": false,
+					"button_text":"Democontent 3 FR"
+				}
+			}
+		},
+		
+		{
+			"id":3,
+			"mqtt_message":"democontent3",
+			"Looped":false,
+			"Successor":false,
+			"is_generative_content": 1,
+			"button_mqtt_action":"democontent1",
+			"button_pos_x":700,
+			"button_pos_y":100,
+			"localizations":{
+				"en":{
+					"Video": false,
+					"Extra": false,
+					"Generative_content": "footage_generative1",
+					"button_text":"Democontent 1 EN"
+				},
+				"de-CH":{
+					"Video": false,
+					"Extra": false,
+					"Generative_content": "footage_generative1",
+					"button_text":"Democontent 1 DE"
+				},
+				"fr":{
+					"Video": false,
+					"Extra": false,
+					"Generative_content": "footage_generative1",
+					"button_text":"Democontent 1 FR"
+				}
+			}
+		}
+	]
+}

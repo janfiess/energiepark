@@ -32,7 +32,7 @@ class ScenePlayer:
 			
 
 
-	def Play(self, playername):
+	def Play_audio(self, playername):
 		print("playing")
 		player = op(playername)
 		player.par.play = 1
@@ -42,10 +42,11 @@ class ScenePlayer:
 
 		op.Logger.Info(f"[ScenePlayer]: playing now {playername}")
 
-	def Pause(self, playername):
+	def Pause_audio(self, playername):
 		print("pause")
 		player = op(playername)
 		player.par.play = 0
+		player.par.cuepulse.pulse()
 		op.Logger.Info(f"[ScenePlayer]: pausing {playername}")
 
 
@@ -54,25 +55,25 @@ class ScenePlayer:
 	def OnParamChanged(self, par):
 		if par.name == "Audio1de":
 			if par == 1:
-				self.Play("Audio1_DE")
+				self.Play_audio("Audio1_DE")
 			elif par == 0:
-				self.Pause("Audio1_DE")
+				self.Pause_audio("Audio1_DE")
 
 		elif par.name == "Audio1en":
 			if par == 1:
-				self.Play("Audio1_EN")
+				self.Play_audio("Audio1_EN")
 			elif par == 0:
-				self.Pause("Audio1_EN")
+				self.Pause_audio("Audio1_EN")
 
 		elif par.name == "Audio2de":
 			if par == 1:
-				self.Play("Audio2_DE")
+				self.Play_audio("Audio2_DE")
 			elif par == 0:
-				self.Pause("Audio2_DE")
+				self.Pause_audio("Audio2_DE")
 
 		elif par.name == "Audio2en":
 			if par == 1:
-				self.Play("Audio2_EN")
+				self.Play_audio("Audio2_EN")
 			elif par == 0:
-				self.Pause("Audio2_EN")
+				self.Pause_audio("Audio2_EN")
 				

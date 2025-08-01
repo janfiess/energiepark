@@ -62,7 +62,7 @@ class MQTTout:
 			
 			
 		# outputs
-
+x
 		elif par.name == "Reactivatedisplay":
 			op.MQTT_out.SendMQTT_notretained(self.topic_prefix + "display",  "reactivate")
 

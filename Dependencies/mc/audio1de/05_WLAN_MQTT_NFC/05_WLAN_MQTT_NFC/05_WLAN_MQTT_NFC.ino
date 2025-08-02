@@ -4,9 +4,24 @@
  * Installiere Library "MQTT" von Joel Gaehwiler
 ******************************************************************/
 
+/******************************************************************
+ * Read NFC tags and RFID cards (I2C mode)
+ * Script erkennt, wenn ein NFC Tag in die Nähe kommt bzw entfernt wird
+ * und sendet das Signal per MQTT über WLAN an den MQTT Broker, wo TouchDesigner abonniert ist
+ * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C)
+ * Anschluss:
+ * PN532: SDA <-> ESP32-C6: GPIO 6
+ * PN532: SCL <-> ESP32-C6: GPIO 7
+ * PN532: Vcc <-> ESP32-C6: 3.3V
+ * PN532: GND <-> ESP32-C6: GND
+ * Installiere Library "Adafruit_PN532" von Adafruit
+********************************************************************/
+
 
 #include <WiFi.h>
 #include <MQTT.h>
+#include <Wire.h>                               // für I2C -> z.B. PN532 NFC Reader
+#include <Adafruit_PN532.h>                     // NFC Reader
 
 // WLAN und MQTT Einstellungen
 const char* ssid = "FRITZ!Box 6690 TA";         // @todo: add your wifi name "FRITZ!Box 6690 TA"
@@ -24,13 +39,28 @@ const char* subscribe_topics[] = {SUBSCRIBE_TOPIC_LED};
 WiFiClient wificlient;
 MQTTClient mqttclient;
 
+// I2C Pins definieren
+#define SDA_PIN 6
+#define SCL_PIN 7
+
+long prev_timestamp = 0;    // alle paar sekunden message verschicken
+
+// IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
+#define PN532_IRQ   (2)
+#define PN532_RESET (3)
+
+// Konstruktor mit IRQ, RESET und Wire
+Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
+
+// Status merken, ob aktuell ein NFC-Tag erkannt wird
+bool tagDetected = false;
+
 // Funktionsprototypen
 void connectWiFi();
 void connectMQTT();
 void messageReceived(String &topic, String &payload);
 void sendMQTT();
 
-long prev_timestamp = 0;    // alle paar sekunden message verschicken
 
 void setup() {
   Serial.begin(115200);
@@ -47,6 +77,26 @@ void setup() {
   mqttclient.onMessage(messageReceived); 
   connectMQTT();
 
+  
+  Wire.begin(SDA_PIN, SCL_PIN);                        // Wire starten mit den benutzerdefinierten I2C Pins
+  nfc.begin();                                         // PN532 starten
+
+  uint32_t versiondata = nfc.getFirmwareVersion();
+  if (!versiondata) {
+    Serial.println("Kein PN532 gefunden – Verbindung prüfen.");
+    while (1); // bleibt hängen, wenn nichts gefunden wird
+  }
+
+  // Chip-Daten des NFC-Readers anzeigen
+  Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
+  Serial.print("Firmware Version: "); Serial.print((versiondata >> 16) & 0xFF, DEC);
+  Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
+
+  // Konfiguriere das Modul für RFID-Lesen
+  nfc.SAMConfig();
+  Serial.println("Warte auf ein RFID/NFC Tag...");
+
+
   Serial.println("Setup abgeschlossen.");
 }
 
@@ -58,13 +108,59 @@ void loop() {
     Serial.println("MQTT Verbindung verloren. Versuche Neuverbindung...");
     connectMQTT();
   }
-  
-  // Sende Nachricht alle 10 Sekunden
-  if(millis() - prev_timestamp >= 10000) { 
-    prev_timestamp = millis();
-    Serial.println("Sending MQTT message...");
-    sendMQTT();
+
+
+
+
+
+  // NFC Reader
+
+  uint8_t uid[7];
+  uint8_t uidLength;
+
+  // Tag auslesen (mit Timeout)
+  bool success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 100);
+
+  if (success) {
+    if (!tagDetected) {
+      tagDetected = true;
+
+
+      for (uint8_t i = 0; i < uidLength; i++) {
+        Serial.print(uid[i], HEX); Serial.print(" ");
+      }
+      Serial.println();
+
+      char* publish_payload_audio = "pause";
+      Serial.printf("Kopfhörer eingehängt - Publishing: Topic: %s, Payload: %s\n", PUBLISH_TOPIC_AUDIO, publish_payload_audio);
+      mqttclient.publish(PUBLISH_TOPIC_AUDIO, publish_payload_audio);
+
+
+
+      
+    }
+  } else {
+    if (tagDetected) {
+      tagDetected = false;
+      char* publish_payload_audio = "play";
+      Serial.printf("Kopfhörer entfernt - Publishing: Topic: %s, Payload: %s\n", PUBLISH_TOPIC_AUDIO, publish_payload_audio);
+      mqttclient.publish(PUBLISH_TOPIC_AUDIO, publish_payload_audio);
+    }
   }
+
+  delay(200); // Abfrageintervall
+
+
+
+
+
+  
+  // // Sende Nachricht alle 10 Sekunden
+  // if(millis() - prev_timestamp >= 10000) { 
+  //   prev_timestamp = millis();
+  //   Serial.println("Sending MQTT message...");
+  //   sendMQTT();
+  // }
   
   delay(50);                                           // Eine kleine Verzögerung ist gut, um den Core nicht zu überlasten
 }

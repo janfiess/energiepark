@@ -1,16 +1,3 @@
-/******************************************************************
- * Read NFC tags and RFID cards (I2C mode)
- * Script erkennt, wenn ein NFC Tag in die Nähe kommt bzw entfernt wird.
- * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C)
- * Anschluss:
- * PN532: SDA <-> ESP32-C6: GPIO 6
- * PN532: SCL <-> ESP32-C6: GPIO 7
- * PN532: Vcc <-> ESP32-C6: 3.3V
- * PN532: GND <-> ESP32-C6: GND
- * Installiere Library "Adafruit_PN532" von Adafruit
- * GitHub: https://github.com/Interaktive-Medien/im_physical_computing/blob/main/09_Sensoren_testen/09_NFC_RFID-Reader/09_NFC_RFID-Reader.ino
-********************************************************************/
-
 #include <Wire.h>
 #include <Adafruit_PN532.h>
 
@@ -18,55 +5,43 @@
 #define SDA_PIN 6
 #define SCL_PIN 7
 
-// IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)
 
-// Konstruktor mit IRQ, RESET und Wire
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
 
-// Status merken, ob aktuell ein Tag erkannt wird
 bool tagDetected = false;
+int lostCounter = 0;
+
+// *** PARAMETER ANPASSEN ***
+// Erhöhe den Schwellenwert, um das System robuster zu machen.
+const int lostThreshold = 25; // Alter Wert: 10
 
 void setup(void) {
   Serial.begin(115200);
-  while (!Serial) delay(10);
-
-  Serial.println("PN532 NFC Reader Test (ESP32-C6, I2C)");
-
-  // Wire starten mit den benutzerdefinierten I2C Pins
+  while (!Serial) delay(100);
+  Serial.println("huarageil");
+  Serial.println("PN532 Reader: Warte auf Tag...");
   Wire.begin(SDA_PIN, SCL_PIN);
-
-  // PN532 starten
   nfc.begin();
-
-  uint32_t versiondata = nfc.getFirmwareVersion();
-  if (!versiondata) {
-    Serial.println("Kein PN532 gefunden – Verbindung prüfen.");
-    while (1); // bleibt hängen, wenn nichts gefunden wird
+  if (!nfc.getFirmwareVersion()) {
+    Serial.println("Kein PN532 gefunden!");
+    while (1);
   }
-
-  // Chip-Daten anzeigen
-  Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
-  Serial.print("Firmware Version: "); Serial.print((versiondata >> 16) & 0xFF, DEC);
-  Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
-
-  // Konfiguriere das Modul für RFID-Lesen
   nfc.SAMConfig();
-  Serial.println("Warte auf ein RFID/NFC Tag...");
 }
 
 void loop(void) {
   uint8_t uid[7];
   uint8_t uidLength;
 
-  // Tag auslesen (mit Timeout)
   bool success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 100);
+  Serial.println(success);
 
   if (success) {
+    lostCounter = 0;
     if (!tagDetected) {
       tagDetected = true;
-
       Serial.print("Kopfhörer eingehängt – UID: ");
       for (uint8_t i = 0; i < uidLength; i++) {
         Serial.print(uid[i], HEX); Serial.print(" ");
@@ -75,10 +50,20 @@ void loop(void) {
     }
   } else {
     if (tagDetected) {
-      tagDetected = false;
-      Serial.println("Kopfhörer entfernt");
+      lostCounter++;
+      
+      // DEBUG-AUSGABE: Zeigt, wie die Fehlschläge gezählt werden
+      Serial.print("Leseversuch fehlgeschlagen, Zähler: ");
+      Serial.println(lostCounter);
+      
+      if (lostCounter >= lostThreshold) {
+        tagDetected = false;
+        Serial.println("Kopfhörer entfernt");
+      }
     }
   }
 
-  delay(200); // Abfrageintervall
+  // *** PAUSE ANPASSEN ***
+  // Gib dem System etwas mehr Zeit zwischen den Leseversuchen.
+  delay(250); // Alter Wert: 200
 }

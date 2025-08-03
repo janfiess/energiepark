@@ -14,13 +14,14 @@
  *
  * Installiere Library "Adafruit_PN532" von Adafruit
  * Installiere Library "MQTT" von Joel Gaehwiler
+ * Installiere Adafruit_VL6180X Library von Adafruit.
 ******************************************************************/
 
 
 #include <WiFi.h>
 #include <MQTT.h>
 #include <Wire.h>                                                      // I2C
-#include <Adafruit_PN532.h>                                            // NFC Reader
+#include "Adafruit_VL6180X.h"
 
 
 // WLAN und MQTT Einstellungen
@@ -43,29 +44,29 @@ MQTTClient mqttclient;
 #define SDA_PIN 6
 #define SCL_PIN 7
 
-// IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
-#define PN532_IRQ   (2)
-#define PN532_RESET (3)
 
-// Konstruktor mit IRQ, RESET und Wire
-Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
 
-// Ziel-UID definieren (7 Bytes)
-const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
-const uint8_t NFC_TARGET_UID_LENGTH = 7;
+// TOF Distanzsensor
 
-// --- Statusvariablen für die verbesserte Erkennung ---
-bool nfc_tagCurrentlyPresent = false;                                  // Merkt sich, ob der TARGET_UID-Tag aktuell als "anwesend" gilt
-int nfc_presentConfirmCounter = 0;                                     // Zählt aufeinanderfolgende erfolgreiche Lesungen des TARGET_UID
-int nfc_absentConfirmCounter = 0;                                      // Zählt aufeinanderfolgende fehlgeschlagene Lesungen (Tag nicht da)
+Adafruit_VL6180X tof = Adafruit_VL6180X();
+int tof_maxdistance = 20;                                                // 20 ~ 30mm -> Sensor misst ab ca 10mm
 
-const int NFC_CONFIRM_PRESENT_THRESHOLD = 3;                           // Der Tag muss X-mal hintereinander korrekt gelesen werden, um als "anwesend" zu gelten.
-const int NFC_CONFIRM_ABSENT_THRESHOLD = 5;                            // Der Tag muss X-mal hintereinander NICHT gelesen werden, um als "entfernt" zu gelten.
+// --- Globale Variablen für die Zustandsverwaltung ---
+bool tof_objectDetected_temp = false;                                    // Aktueller Zustand (ohne Entprellung)
+bool tof_objectDetected = false;                                         // Endgültiger Zustand (nach Entprellung) -> Wert gilt als endgültig, sobald mehrmals derselbe Wert erkannt wurde
 
-uint8_t nfc_uid[7];                                                    // Buffer zum Speichern der UID
-uint8_t nfc_uidLength;                                                 // Länge der UID
-bool nfc_tag_erkannt;                                                  // in dieser Variable wird gespeichert, ob irgendein NFC Tag erkannt wurde
-bool nfc_isTargetTag;                                                  // handelt es sich bei dem erkannten NFC Tag wirklich um den gewünschten? 
+// Array zum Speichern der letzten Zustände für die Entprellung
+const int tof_toleranz_entprellung = 5;
+bool tof_prevStates[tof_toleranz_entprellung]; 
+int tof_state_index = 0;                                                 // Index für das Array
+int tof_timestamp_prev_detected = 0;
+
+
+
+
+
+
+
 
 
 
@@ -78,7 +79,7 @@ void mqtt_messageReceived(String& topic, String& payload);
 
 void setup() {
   Serial.begin(115200);
-  delay(500);                                                           // warten, sonst werden die Serial.print in setup() nicht auf die Komsole gedruckt
+  delay(1000);                                                           // warten, sonst werden die Serial.print in setup() nicht auf die Komsole gedruckt
   Serial.println("Kopfhörer-Station startet...");
 
   // WLAN verbinden
@@ -93,21 +94,23 @@ void setup() {
   // I2C
   Wire.begin(SDA_PIN, SCL_PIN);                                         // Wire starten mit den benutzerdefinierten I2C Pins
 
-  // NFC
-  nfc.begin();                                                          // NFC Reader PN532 starten
-  uint32_t nfc_versiondata = nfc.getFirmwareVersion();                  // Firmware-Version abfragen
-  if (!nfc_versiondata) {
-    Serial.println("Kein PN532 gefunden – Verbindung prüfen.");
-    while (1);                                                          // bleibt hängen, wenn nichts gefunden wird
+
+
+  // TOF Sensor
+  if (! tof.begin()) {
+    Serial.println("Failed to find TOF sensor");
+    while (1);
+  }
+  Serial.println("TOF Sensor found!");
+
+
+  for(int i=0; i < tof_toleranz_entprellung; i++){
+    tof_prevStates[i] = false;
   }
 
-  // Chip-Daten anzeigen
-  Serial.printf("Found chip PN5%X\n", (nfc_versiondata >> 24) & 0xFF);
-  Serial.printf("Firmware Version: %d.%d\n", (nfc_versiondata >> 16) & 0xFF, (nfc_versiondata >> 8) & 0xFF);
 
-  // Konfiguriere das Modul für RFID-Lesen
-  nfc.SAMConfig();
-  Serial.println("Warte auf ein RFID/NFC Tag (UID: FF 0F 17 E9 3F 00 00)...");
+
+
 
 
   Serial.println("Setup abgeschlossen.");
@@ -121,57 +124,64 @@ void loop() {
     connectMQTT();
   }
 
-  // NFC
-  nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
-  nfc_isTargetTag = false;  
 
   
-  if (nfc_tag_erkannt) {                                                 // Prüfen, ob die erkannte UID der gewünschten UID entspricht
-    bool nfc_currentMatch = (nfc_uidLength == NFC_TARGET_UID_LENGTH);    // Prüfe erst ob die Längen der erkannten und der gewünschten IDs übereinstimmen
-    for (uint8_t i = 0; i < nfc_uidLength && nfc_currentMatch; i++) {    // Prüfe jetzt Byte für Byte, ob sie übereinstimmen
-      if (nfc_uid[i] != TARGET_UID[i]) nfc_currentMatch = false;
+
+  // TOF
+
+  uint8_t tof_range = tof.readRange();
+  uint8_t tof_status = tof.readRangeStatus();
+
+  if (tof_status == VL6180X_ERROR_NONE) {
+
+
+    // 1.: Aktuellen Zustand (Objekt erkannt oder nicht) bestimmen -> Wird ein Objekt erkannt innerhalb des festgelegten Bereichs?
+          
+    if (tof_range < tof_maxdistance) {
+      tof_objectDetected_temp = true;
+      // Serial.println("Object detected");
+    } else {
+      tof_objectDetected_temp = false;
     }
-    nfc_isTargetTag = nfc_currentMatch;                                  // Setze isTargetTag basierend auf dem Vergleich
-  }
 
-  // --- Logik für die Bestätigung von Anwesenheit/Abwesenheit ---
-  if (nfc_isTargetTag) {
-    nfc_absentConfirmCounter = 0;                                        // Reset des Abwesenheitszählers
-    nfc_presentConfirmCounter++;                                         // Inkrementiere Anwesenheitszähler
 
-    if (nfc_presentConfirmCounter >= NFC_CONFIRM_PRESENT_THRESHOLD) {    // Wenn der Tag oft genug hintereinander bestätigt wurde   
-      nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;         // Zähler auf Max setzen, um Überlauf zu vermeiden
-      if (!nfc_tagCurrentlyPresent) {  
-        Serial.print("Ziel-Tag erkannt (stabilisiert), UID: ");          // Wenn der Tag vorher nicht als anwesend galt, jetzt aber schon
-        
-        // Signal versenden per MQTT
-        String publishPayload = "pause";
-        Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        
-        for (uint8_t i = 0; i < nfc_uidLength; i++) {
-          Serial.print(nfc_uid[i], HEX); Serial.print(" ");
-        }
-        Serial.println();
-        nfc_tagCurrentlyPresent = true; // Status auf "anwesend" setzen
+    // 2.: Zustand für Entprellung speichern -> Mehrere Werte aufnehmen und miteinander vergleichen
+
+    tof_prevStates[tof_state_index] = tof_objectDetected_temp;
+    tof_state_index = (tof_state_index + 1) % tof_toleranz_entprellung;    // Index zyklisch erhöhen (0, 1, 2, 3, 4, 0, ...)
+
+    // 3. Entprellte Logik prüfen und Ausgabe steuern
+    bool tof_all_detected = true;
+    bool tof_none_detected = true;
+
+    for (int i = 0; i < tof_toleranz_entprellung; i++) {
+      if (!tof_prevStates[i]) {
+        tof_all_detected = false;
+      }
+      if (tof_prevStates[i]) {
+        tof_none_detected = false;
       }
     }
-  } else {                                                                // Wenn der Ziel-Tag NICHT gelesen wurde (entweder kein Tag oder falscher Tag)
-    nfc_presentConfirmCounter = 0;                                        // Reset des Anwesenheitszählers
-    nfc_absentConfirmCounter++;                                           // Inkrementiere Abwesenheitszähler
 
-    if (nfc_absentConfirmCounter >= NFC_CONFIRM_ABSENT_THRESHOLD) {
-      nfc_absentConfirmCounter = NFC_CONFIRM_ABSENT_THRESHOLD;            // Wenn der Tag oft genug hintereinander NICHT gelesen wurde -> Zähler auf Max setzen
-      if (nfc_tagCurrentlyPresent) {                                      // Wenn der Tag vorher als anwesend galt, jetzt aber nicht mehr      
-        Serial.println("Ziel-Tag entfernt (stabilisiert).");
+    if (tof_all_detected && !tof_objectDetected) {                          // Wenn alle der letzten Werte gleich sind und der endgültige Zustand sich ändert
+      tof_objectDetected = true;
+      // Serial.println("Objekt in der Nähe");
 
-        // Signal versenden per MQTT
-        String publishPayload = "play";
-        Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      // Signal versenden per MQTT
+      String publishPayload = "pause";
+      Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
 
-        nfc_tagCurrentlyPresent = false;                                  // Status auf "nicht anwesend" setzen
-      }
+
+
+    } else if (tof_none_detected && tof_objectDetected) {
+      tof_objectDetected = false;
+      // Serial.println("Kein Objekt in der Nähe");
+
+       // Signal versenden per MQTT
+      String publishPayload = "play";
+      Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     }
   }
 

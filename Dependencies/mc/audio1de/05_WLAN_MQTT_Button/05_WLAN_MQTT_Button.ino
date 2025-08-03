@@ -76,12 +76,12 @@ void loop() {
   prev_buttonState = buttonState;
   if (buttonState == 1) {
       // int publishPayload = buttonState;
-      String publishPayload = String(buttonState);
+      String publishPayload = "pause";
       Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
       mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
   } else {
       // int publishPayload = buttonState;
-      String publishPayload = String(buttonState);
+      String publishPayload = "play";
       Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
       mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
   } 

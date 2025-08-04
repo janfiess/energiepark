@@ -109,7 +109,7 @@ void setup() {
 
   // Konfiguriere das Modul für RFID-Lesen
   nfc.SAMConfig();
-  Serial.println("Warte auf ein RFID/NFC Tag (UID: FF 0F 17 E9 3F 00 00)...");
+  Serial.println("Warte auf ein RFID/NFC Tag...");
 
 
   Serial.println("Setup abgeschlossen.");

@@ -1,0 +1,128 @@
+2025-05-12 19:33:41 - DEBUG - [Logger]: START APPLICATION
+2025-05-12 19:33:41 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 0
+2025-05-12 19:33:42 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-05-12 19:33:49 - INFO - [Reset]: Reset
+2025-05-12 19:33:49 - INFO - [Startup]: latest_mqtt_payload: democontent1
+2025-05-12 19:33:49 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:36:03 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:38:42 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:41:22 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:44:01 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:45:12 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 19:46:47 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:48:07 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:48:30 - INFO - [ScenePlayer]: restart video now
+2025-05-12 19:48:54 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:49:46 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:50:15 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:50:19 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 17
+2025-05-12 19:50:40 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 19
+2025-05-12 19:51:04 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 17
+2025-05-12 19:51:15 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 19:51:31 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 20:07:05 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 16
+2025-05-12 20:07:06 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:12:51 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 8
+2025-05-12 20:13:28 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:16:08 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:18:47 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:21:27 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:24:07 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:26:46 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:29:26 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:30:54 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 20:36:47 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 15
+2025-05-12 20:38:07 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:38:28 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 20:40:48 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:43:27 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:46:07 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:48:47 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:51:26 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:54:06 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:56:45 - INFO - [ScenePlayer]: restart video now
+2025-05-12 20:59:25 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:02:05 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:04:44 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:07:24 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:10:03 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:12:43 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:15:22 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:18:02 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:20:41 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:23:21 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:26:01 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:28:40 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:31:20 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:33:59 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:36:39 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:39:18 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:41:58 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:44:38 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:47:17 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:49:57 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:52:36 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:55:16 - INFO - [ScenePlayer]: restart video now
+2025-05-12 21:57:55 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:00:35 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:03:15 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:05:54 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:08:34 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:11:13 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:13:53 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:15:22 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 22:16:15 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-05-12 22:17:00 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:19:40 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:22:20 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:24:59 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:27:39 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:30:18 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:32:58 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:35:37 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:38:17 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:40:57 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:43:36 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:46:16 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:48:55 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:51:35 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:54:14 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:56:54 - INFO - [ScenePlayer]: restart video now
+2025-05-12 22:59:34 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:02:13 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:04:53 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:07:32 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:10:12 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:12:52 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:15:31 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:18:11 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:20:50 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:23:30 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:26:09 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:28:49 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:31:28 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:34:08 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:36:48 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:39:27 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:42:07 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:44:46 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:47:26 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:50:05 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:52:45 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:55:25 - INFO - [ScenePlayer]: restart video now
+2025-05-12 23:58:04 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:00:44 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:03:23 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:06:03 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:08:42 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:11:22 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:14:01 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:16:41 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:19:21 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:22:00 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:24:40 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:27:19 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:29:59 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:32:38 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:35:18 - INFO - [ScenePlayer]: restart video now
+2025-05-13 00:37:22 - DEBUG - [Logger]: CLOSE APPLICATION

@@ -1,4 +1,4 @@
-from TDStoreTools import StorageManager
+﻿from TDStoreTools import StorageManager
 import TDFunctions as TDF
 
 class MQTTin:
@@ -47,34 +47,39 @@ class MQTTin:
 				op.Display_out.par.Showui.pulse()
 	
 
-		# Player
+		# AUdio Player Kopfhörerstationen
 
 		elif(topic == self.topic_prefix + "reset"):
 			op.Reset.ResetRoutine()
 
-		elif(topic == self.topic_prefix + "player/audio1de"):   # eg. T: laufen/player P: play
+		elif(topic == self.topic_prefix + "player/audio1de"):
 			if(payload == "play"):
 				op.ScenePlayer.Play_audio("Audio1_DE")
 			elif(payload == "pause"):
 				op.ScenePlayer.Pause_audio("Audio1_DE")
 		
-		elif(topic == self.topic_prefix + "player/audio1en"):   # eg. T: laufen/player P: play
+		elif(topic == self.topic_prefix + "player/audio1en"):
 			if(payload == "play"):
 				op.ScenePlayer.Play_audio("Audio1_EN")
 			elif(payload == "pause"):
 				op.ScenePlayer.Pause_audio("Audio1_EN")
 
-		elif(topic == self.topic_prefix + "player/audio2de"):   # eg. T: laufen/player P: play
+		elif(topic == self.topic_prefix + "player/audio2de"): 
 			if(payload == "play"):
 				op.ScenePlayer.Play_audio("Audio2_DE")
 			elif(payload == "pause"):
 				op.ScenePlayer.Pause_audio("Audio2_DE")
 
-		elif(topic == self.topic_prefix + "player/audio2en"):   # eg. T: laufen/player P: play
+		elif(topic == self.topic_prefix + "player/audio2en"): 
 			if(payload == "play"):
 				op.ScenePlayer.Play_audio("Audio2_EN")
 			elif(payload == "pause"):
 				op.ScenePlayer.Pause_audio("Audio2_EN")
+				
+		# RFID-Stationen
+		
+		elif(topic == self.topic_prefix + "rfid"):  
+			op.Scanner.Identify(payload)
 
 
 		

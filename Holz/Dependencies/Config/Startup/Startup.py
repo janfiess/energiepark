@@ -9,10 +9,7 @@ class Startup:
 
 		# activate mqtts
 		op.MQTT_in.par.Active = 1
-	
-		# play video and audio (not pause)
-		op.ScenePlayer.par.Pause = 0
-		
+
 		# create list of accepted payloads for mqtt topic  .../play
 		op.ScenePlayer.Update_list_of_accepted_payloads()
 		

@@ -1,0 +1,222 @@
+2025-07-28 09:16:51 - DEBUG - [Logger]: START APPLICATION
+2025-07-28 09:16:52 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 0
+2025-07-28 09:16:52 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 09:16:59 - INFO - [Reset]: Reset
+2025-07-28 09:16:59 - INFO - [Startup]: latest_mqtt_payload: democontent1
+2025-07-28 09:16:59 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:17:37 - INFO - [Language]: Changing language to de now
+2025-07-28 09:17:54 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-07-28 09:25:15 - DEBUG - [Logger]: START APPLICATION
+2025-07-28 09:25:16 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 0
+2025-07-28 09:25:16 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 09:25:23 - INFO - [Reset]: Reset
+2025-07-28 09:25:23 - INFO - [Startup]: latest_mqtt_payload: democontent1
+2025-07-28 09:25:23 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:25:29 - INFO - [Language]: Changing language to de now
+2025-07-28 09:25:34 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/player/play - Payload: democontent2
+2025-07-28 09:25:34 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent2
+2025-07-28 09:25:34 - INFO - [Timer]: Abort all timers
+2025-07-28 09:25:36 - INFO - [ScenePlayer]: playing now democontent2
+2025-07-28 09:28:14 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/player/play - Payload: democontent1
+2025-07-28 09:28:14 - INFO - [Timer]: Abort all timers
+2025-07-28 09:28:14 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent1
+2025-07-28 09:28:16 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 09:30:55 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:33:35 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:36:14 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:38:54 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:41:34 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:44:13 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:46:53 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:49:32 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:52:12 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:54:51 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:57:31 - INFO - [ScenePlayer]: restart video now
+2025-07-28 09:59:59 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/player/play - Payload: democontent2
+2025-07-28 09:59:59 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent2
+2025-07-28 09:59:59 - INFO - [Timer]: Abort all timers
+2025-07-28 10:00:01 - INFO - [ScenePlayer]: playing now democontent2
+2025-07-28 10:00:17 - INFO - [ScenePlayer]: restart video now
+2025-07-28 10:02:10 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-07-28 13:30:35 - DEBUG - [Logger]: START APPLICATION
+2025-07-28 13:30:36 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 0
+2025-07-28 13:30:36 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 13:30:37 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent2
+2025-07-28 13:30:39 - INFO - [Timer]: Abort all timers
+2025-07-28 13:30:41 - INFO - [ScenePlayer]: playing now democontent2
+2025-07-28 13:30:43 - INFO - [Reset]: Reset
+2025-07-28 13:30:43 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/player/play - Payload: democontent1
+2025-07-28 13:30:43 - INFO - [Startup]: latest_mqtt_payload: democontent1
+2025-07-28 13:30:43 - INFO - [Timer]: Abort all timers
+2025-07-28 13:30:43 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent1
+2025-07-28 13:30:45 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 13:33:24 - INFO - [ScenePlayer]: restart video now
+2025-07-28 13:36:04 - INFO - [ScenePlayer]: restart video now
+2025-07-28 14:07:25 - INFO - [ScenePlayer]: restart video now
+2025-07-28 14:10:04 - INFO - [ScenePlayer]: restart video now
+2025-07-28 14:12:44 - INFO - [ScenePlayer]: restart video now
+2025-07-28 15:23:27 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 15:26:58 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 15:27:29 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 15:27:31 - INFO - [ScenePlayer]: playing now democontent1
+2025-07-28 15:28:35 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:28:46 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:29:14 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:29:16 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:29:28 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:29:32 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:34:36 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:34:37 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:36:39 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio2_EN
+2025-07-28 15:36:40 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio2_EN
+2025-07-28 15:36:43 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio2_DE
+2025-07-28 15:36:45 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio2_DE
+2025-07-28 15:36:46 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:36:48 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_EN
+2025-07-28 15:36:52 - INFO - [ScenePlayer]: playing now /playout/Content/ScenePlayer/Audio1_DE
+2025-07-28 15:36:54 - INFO - [ScenePlayer]: pausing /playout/Content/ScenePlayer/Audio1_DE
+2025-07-28 15:49:03 - INFO - [ScenePlayer]: playing now Audio2_EN
+2025-07-28 15:49:06 - INFO - [ScenePlayer]: pausing Audio2_EN
+2025-07-28 15:51:01 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 15:51:02 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 15:51:03 - INFO - [ScenePlayer]: playing now Audio1_EN
+2025-07-28 15:51:04 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-07-28 15:51:05 - INFO - [ScenePlayer]: playing now Audio2_DE
+2025-07-28 15:51:07 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-07-28 16:01:53 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-07-28 16:14:32 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-07-28 16:40:25 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 16:40:26 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 16:42:04 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 16:42:05 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 16:42:07 - INFO - [ScenePlayer]: playing now Audio1_EN
+2025-07-28 16:42:08 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-07-28 16:42:10 - INFO - [ScenePlayer]: playing now Audio2_DE
+2025-07-28 16:42:13 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-07-28 16:42:14 - INFO - [ScenePlayer]: playing now Audio2_DE
+2025-07-28 16:42:17 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-07-28 16:42:18 - INFO - [ScenePlayer]: playing now Audio2_EN
+2025-07-28 16:42:20 - INFO - [ScenePlayer]: pausing Audio2_EN
+2025-07-28 16:57:23 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 1
+2025-07-28 18:13:17 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-07-28 21:11:42 - DEBUG - [Logger]: START APPLICATION
+2025-07-28 21:11:46 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: stdplayer/app/low_fps - Payload: 0
+2025-07-28 21:11:46 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 21:11:47 - INFO - [MQTT_in]: topic: stdplayer/player/play   |   payload: democontent1
+2025-07-28 21:11:53 - INFO - [Reset]: Reset
+2025-07-28 22:38:45 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 22:38:46 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 22:38:48 - INFO - [ScenePlayer]: playing now Audio1_EN
+2025-07-28 22:38:49 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-07-28 22:38:50 - INFO - [ScenePlayer]: playing now Audio2_DE
+2025-07-28 22:38:52 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-07-28 22:38:54 - INFO - [ScenePlayer]: playing now Audio2_EN
+2025-07-28 22:38:55 - INFO - [ScenePlayer]: pausing Audio2_EN
+2025-07-28 22:39:20 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: stdplayer/player/audio1de - Payload: play
+2025-07-28 22:39:21 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: stdplayer/player/audio1de - Payload: play
+2025-07-28 22:39:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: stdplayer/player/audio1de - Payload: play
+2025-07-28 22:41:06 - INFO - [MQTT_in]: mqtt_topic_prefix changed to: holz/
+2025-07-28 22:41:12 - INFO - [MQTT_in]: Reconnecting to MQTT broker
+2025-07-28 22:41:12 - INFO - [MQTT_in]: Lost connection to an MQTT broker
+2025-07-28 22:41:12 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 22:46:20 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 22:58:31 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:01:28 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:01:48 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:12:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:12:25 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:12:31 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:13:37 - INFO - [MQTT_in]: Lost connection to an MQTT broker
+2025-07-28 23:13:37 - INFO - [MQTT_in]: Deactivated MQTT
+2025-07-28 23:13:38 - INFO - [MQTT_in]: Activated MQTT
+2025-07-28 23:13:38 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-28 23:13:45 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:13:45 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: play
+2025-07-28 23:13:45 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:13:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: pause
+2025-07-28 23:13:54 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: pause
+2025-07-28 23:13:54 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 23:14:01 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1en - Payload: play
+2025-07-28 23:14:01 - INFO - [MQTT_in]: topic: holz/player/audio1en   |   payload: play
+2025-07-28 23:14:01 - INFO - [ScenePlayer]: playing now Audio1_EN
+2025-07-28 23:14:05 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1en - Payload: pause
+2025-07-28 23:14:05 - INFO - [MQTT_in]: topic: holz/player/audio1en   |   payload: pause
+2025-07-28 23:14:05 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-07-28 23:14:13 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:14:13 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: play
+2025-07-28 23:14:13 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:14:21 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: pause
+2025-07-28 23:14:21 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: pause
+2025-07-28 23:14:21 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 23:14:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1en - Payload: play
+2025-07-28 23:14:22 - INFO - [MQTT_in]: topic: holz/player/audio1en   |   payload: play
+2025-07-28 23:14:22 - INFO - [ScenePlayer]: playing now Audio1_EN
+2025-07-28 23:14:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1en - Payload: pause
+2025-07-28 23:14:55 - INFO - [MQTT_in]: topic: holz/player/audio1en   |   payload: pause
+2025-07-28 23:14:55 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-07-28 23:14:57 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio2de - Payload: play
+2025-07-28 23:14:57 - INFO - [MQTT_in]: topic: holz/player/audio2de   |   payload: play
+2025-07-28 23:14:57 - INFO - [ScenePlayer]: playing now Audio2_DE
+2025-07-28 23:15:02 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio2de - Payload: pause
+2025-07-28 23:15:02 - INFO - [MQTT_in]: topic: holz/player/audio2de   |   payload: pause
+2025-07-28 23:15:02 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-07-28 23:15:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio2en - Payload: play
+2025-07-28 23:15:07 - INFO - [MQTT_in]: topic: holz/player/audio2en   |   payload: play
+2025-07-28 23:15:07 - INFO - [ScenePlayer]: playing now Audio2_EN
+2025-07-28 23:15:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio2en - Payload: pause
+2025-07-28 23:15:19 - INFO - [MQTT_in]: topic: holz/player/audio2en   |   payload: pause
+2025-07-28 23:15:19 - INFO - [ScenePlayer]: pausing Audio2_EN
+2025-07-28 23:39:43 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:43:23 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:43:23 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: play
+2025-07-28 23:43:35 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: pause
+2025-07-28 23:43:35 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: pause
+2025-07-28 23:43:36 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:43:36 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: play
+2025-07-28 23:45:00 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/player/audio1de - Payload: play
+2025-07-28 23:45:00 - INFO - [MQTT_in]: topic: holz/player/audio1de   |   payload: play
+2025-07-28 23:45:00 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:45:10 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 23:46:50 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:52:48 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-28 23:52:49 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-28 23:53:05 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 00:00:54 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 00:01:05 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 00:04:37 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 00:06:07 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 00:07:16 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 00:07:26 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 00:08:07 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-07-29 14:34:20 - DEBUG - [Logger]: START APPLICATION
+2025-07-29 14:34:21 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 0
+2025-07-29 14:34:21 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-07-29 14:34:28 - INFO - [Reset]: Reset
+2025-07-29 14:34:40 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 14:34:41 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 14:42:44 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 14:43:43 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-07-29 14:54:56 - INFO - [ScenePlayer]: playing now Audio1_DE
+2025-07-29 14:55:05 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 1.0
+2025-07-29 14:55:21 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 2.0
+2025-07-29 14:55:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 3.0
+2025-07-29 14:55:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 4
+2025-07-29 14:56:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 5
+2025-07-29 14:56:28 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 6
+2025-07-29 14:56:44 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 7
+2025-07-29 14:56:59 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 0
+2025-07-29 14:57:01 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 8
+2025-07-29 14:57:18 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 9
+2025-07-29 14:57:34 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 10
+2025-07-29 14:57:51 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 11
+2025-07-29 14:58:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring_audio1de/sections - Payload: 12
+2025-07-29 15:20:37 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 7
+2025-07-29 15:29:45 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 1
+2025-07-29 15:42:57 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 19
+2025-07-29 15:58:47 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 18
+2025-07-29 16:05:21 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 1
+2025-07-29 16:31:47 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 19
+2025-07-29 16:32:28 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 5
+2025-07-29 17:00:18 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 12
+2025-07-29 17:10:55 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 1
+2025-07-29 18:41:57 - DEBUG - [Logger]: CLOSE APPLICATION

@@ -79,7 +79,7 @@ class MQTTin:
 		# RFID-Stationen
 		
 		elif(topic == self.topic_prefix + "rfid"):  
-			op.Scanner.Identify(payload)
+			op.Scanner.Lookup_rfid(payload)
 
 
 		

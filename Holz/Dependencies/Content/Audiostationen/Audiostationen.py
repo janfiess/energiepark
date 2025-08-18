@@ -1,7 +1,7 @@
 from TDStoreTools import StorageManager
 import TDFunctions as TDF
 
-class ScenePlayer:
+class Audiostationen:
 	def __init__(self, ownerComp):
 		return
 
@@ -11,26 +11,6 @@ class ScenePlayer:
 
 		if payload not in self.accepted_payloads_list or "None" in payload:
 			return
-		
-		# op.Timer.par.Resetalltimers.pulse()	
-		# parent().par.Nextreplicatorinstance = self.GetSceneName(payload) # 'footage*'
-
-		# op.ScenePlayer.op("timer_fadeoldout_newin").par.start.pulse()
-
-
-		#print(f"next replicator instance: {parent().par.Nextreplicatorinstance}")
-
-		# parent().par.Prevscenemqttpayload = parent().par.Latestscenemqttpayload
-		# parent().par.Latestscenemqttpayload = payload
-		# parent().par.Latestscenemqtttime = absTime.seconds
-
-		# save latest scene mqtt payload on broker in order to have it persistent in case the scene change was not initiated over mqtt
-			
-		# if op.MQTT_in.par.Latestmqttpayload != op.ScenePlayer.par.Latestscenemqttpayload  and (absTime.seconds - op.MQTT_in.par.Latestmqtttime) > 1: # nicht mehrmals hintereinander mqtt senden und empfangen
-		# 	topic = op.MQTT_in.par.Topicprefix  + "player/play"
-		# 	op.MQTT_out.SendMQTT_retained(topic, payload)
-			
-
 
 	def Play_audio(self, playername):
 		print("playing")

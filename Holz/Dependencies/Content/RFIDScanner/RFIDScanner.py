@@ -1,7 +1,7 @@
 from TDStoreTools import StorageManager
 import TDFunctions as TDF
 
-class Scanner:
+class RFIDScanner:
 	def __init__(self, ownerComp):
 		self.Ids = {}   # Global dictionary, wird von apply_rfid_ids() gesetzt
 		return
@@ -28,7 +28,7 @@ class Scanner:
 
 		for number, rfid_list in self.Ids.items():
 			if rfid_code in rfid_list:
-				#print(number)
+				print(f"Scene to play: {number}")
 				op('sceneChanger').SceneChange(number, fadeTime=1)
 				op("timeout_timer").par.start.pulse()
 

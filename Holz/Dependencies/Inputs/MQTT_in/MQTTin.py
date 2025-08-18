@@ -54,32 +54,32 @@ class MQTTin:
 
 		elif(topic == self.topic_prefix + "player/audio1de"):
 			if(payload == "play"):
-				op.ScenePlayer.Play_audio("Audio1_DE")
+				op.Audiostationen.Play_audio("Audio1_DE")
 			elif(payload == "pause"):
-				op.ScenePlayer.Pause_audio("Audio1_DE")
+				op.Audiostationen.Pause_audio("Audio1_DE")
 		
 		elif(topic == self.topic_prefix + "player/audio1en"):
 			if(payload == "play"):
-				op.ScenePlayer.Play_audio("Audio1_EN")
+				op.Audiostationen.Play_audio("Audio1_EN")
 			elif(payload == "pause"):
-				op.ScenePlayer.Pause_audio("Audio1_EN")
+				op.Audiostationen.Pause_audio("Audio1_EN")
 
 		elif(topic == self.topic_prefix + "player/audio2de"): 
 			if(payload == "play"):
-				op.ScenePlayer.Play_audio("Audio2_DE")
+				op.Audiostationen.Play_audio("Audio2_DE")
 			elif(payload == "pause"):
-				op.ScenePlayer.Pause_audio("Audio2_DE")
+				op.Audiostationen.Pause_audio("Audio2_DE")
 
 		elif(topic == self.topic_prefix + "player/audio2en"): 
 			if(payload == "play"):
-				op.ScenePlayer.Play_audio("Audio2_EN")
+				op.Audiostationen.Play_audio("Audio2_EN")
 			elif(payload == "pause"):
-				op.ScenePlayer.Pause_audio("Audio2_EN")
+				op.Audiostationen.Pause_audio("Audio2_EN")
 				
 		# RFID-Stationen
 		
 		elif(topic == self.topic_prefix + "rfid"):  
-			op.Scanner.Lookup_rfid(payload)
+			op.RFIDScanner.Lookup_rfid(payload)
 
 
 		

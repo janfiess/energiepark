@@ -86,7 +86,7 @@ void loop() {
   
   // Aus x, y, z Werten einen einzigen String im Format "x:WERT,y:WERT,z:WERT" erzeugen
   char payload[64]; // Puffer für die Zeichenkette, ausreichend groß für drei float-Werte
-  snprintf(payload, sizeof(payload), "x:%.2f,y:%.2f,z:%.2f", angle.x, angle.y, angle.z);
+  snprintf(payload, sizeof(payload), "x:%.2f,y:%.2f", angle.x, angle.y);
 
   // Ausgabe im Serial Monitor
   Serial.println(payload);

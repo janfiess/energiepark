@@ -12,7 +12,7 @@ class Audiostationen:
 		if payload not in self.accepted_payloads_list or "None" in payload:
 			return
 
-	def Play_audio(self, playername):
+	def Play_audio(self, playername):   # z. B. op.Audiostationen.Pause_audio("Audio1_DE")
 		print("playing")
 		player = op(playername)
 		player.par.play = 1

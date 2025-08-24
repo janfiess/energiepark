@@ -23,6 +23,7 @@
 #include <Wire.h>                                                      // I2C
 #include "Adafruit_VL6180X.h"
 #include <Adafruit_PN532.h>                                            // NFC Reader
+#include "esp_log.h" 
 
 
 // WLAN und MQTT Einstellungen
@@ -31,7 +32,7 @@ const char* ssid = "LinusFetzMusikGast";                                // @todo
 // const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
 const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
 // const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
-const char* mqtt_broker = "broker.emqx.io";                            // "broker.emqx.io", "192.168.0.80"
+const char* mqtt_broker = "broker.hivemq.com";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";         // Topics.  -   Diese werden für Subscribing und Publishing genutzt
@@ -77,7 +78,7 @@ int tof_timestamp_prev_detected = 0;
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
 
 // Ziel-UID definieren (7 Bytes)
-const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
+// const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
 String target_id = "14AA77D6";
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
@@ -129,6 +130,16 @@ void setup() {
   connectMQTT();
 
   // I2C
+
+  // Harte Methode: ESP32-I2C-Logger komplett ausschalten, sonst wird Konsole zugemüllt
+  esp_log_set_vprintf([](const char *fmt, va_list args) -> int {
+    (void)fmt;   // ignore
+    (void)args;  // ignore
+    return 0;    // nichts ausgeben
+  });
+
+
+
   Wire.begin(SDA_PIN, SCL_PIN);                                         // Wire starten mit den benutzerdefinierten I2C Pins
 
 
@@ -146,60 +157,45 @@ void loop() {
     connectMQTT();
   }
 
-  // read_tof();                                                            // get TOF "button" state
   read_nfc();                                                            // get NFC "button" state
 
+  // delay(200);
 
 
-
-   // NFC
-  // nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
-  // nfc_isTargetTag = false;  
-
-  // if (nfc_tag_erkannt) {  
-  //   Serial.println("nfc_tag_erkannt");
-  //   // UID in Hex-String konvertieren
-  //   char nfc_payload[3 * sizeof(nfc_uid) + 1]; 
-  //   nfc_payload[0] = '\0'; 
-
-  //   for (uint8_t i = 0; i < nfc_uidLength; i++) {
-  //     char byteStr[4];
-  //     sprintf(byteStr, "%02X", nfc_uid[i]);      
-  //     strcat(nfc_payload, byteStr);              
-  //   }
-
-  //   String current_RFID_string = nfc_payload; 
-  //   Serial.println(current_RFID_string);
-  // }
+  read_tof();                                                            // get TOF "button" state
+  // return;
 
 
 
 
 
-  // if(nfc_tagCurrentlyPresent == true && tof_objectDetected == true){
-  //   is_object_detected = true;
-  // }
-  // else if(nfc_tagCurrentlyPresent == false && tof_objectDetected == false){
-  //   is_object_detected = false;
-  // }
-  // else return;
 
 
-  // if(is_object_detected == prev_is_object_detected) return;
-  // if(is_object_detected == true){
-  //   prev_is_object_detected = true;
 
-  //   String publishPayload = "pause";
-  //   Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  //   mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  // }
-  // else if(is_object_detected == false){
-  //   prev_is_object_detected = false;
+  if(nfc_tagCurrentlyPresent == true && tof_objectDetected == true){
+    is_object_detected = true;
+  }
+  else if(nfc_tagCurrentlyPresent == false && tof_objectDetected == false){
+    is_object_detected = false;
+  }
+  else return;
 
-  //   String publishPayload = "play";
-  //   Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  //   mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  // }
+
+  if(is_object_detected == prev_is_object_detected) return;
+  if(is_object_detected == true){
+    prev_is_object_detected = true;
+
+    String publishPayload = "pause";
+    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  }
+  else if(is_object_detected == false){
+    prev_is_object_detected = false;
+
+    String publishPayload = "play";
+    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  }
 
 
 
@@ -290,6 +286,8 @@ void read_tof(){
   uint8_t tof_range = tof.readRange();
   uint8_t tof_status = tof.readRangeStatus();
 
+  // Serial.printf("tof_range: %d\n", tof_range);
+
   if (tof_status == VL6180X_ERROR_NONE) {
 
 
@@ -323,26 +321,29 @@ void read_tof(){
 
     if (tof_all_detected && !tof_objectDetected) {                          // Wenn alle der letzten Werte gleich sind und der endgültige Zustand sich ändert
       tof_objectDetected = true;
-      // Serial.println("Objekt in der Nähe");
+      Serial.printf("Objekt in der Nähe (Distanz: %d)\n", tof_range);
 
       // Signal versenden per MQTT
       // String publishPayload = "pause";
-      // Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      // Serial.printf("Publishing (TOF only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
       // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
 
 
 
     } else if (tof_none_detected && tof_objectDetected) {
       tof_objectDetected = false;
-      // Serial.println("Kein Objekt in der Nähe");
+      Serial.printf("kein Objekt in der Nähe (Distanz: %d)\n", tof_range);
 
        // Signal versenden per MQTT
       // String publishPayload = "play";
-      // Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      // Serial.printf("Publishing (TOF only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
       // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     }
   }
 }
+
+
+
 
 
 void init_nfc(){                                                          // wird in start() aufgerufen
@@ -408,14 +409,11 @@ void read_nfc(){
         Serial.printf("Ziel-Tag erkannt: %s\n", target_id);              // current_NFC_string == target_id 
 
         // Signal versenden per MQTT
-        // String publishPayload = "pause";
-        // Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        // String publishPayload = "pause (nfc)";
+        // Serial.printf("Publishing (NFC only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         
-        // for (uint8_t i = 0; i < nfc_uidLength; i++) {
-        //   Serial.print(nfc_uid[i], HEX); Serial.print(" ");
-        // }
- 
+
         nfc_tagCurrentlyPresent = true; // Status auf "anwesend" setzen
       }
     }
@@ -429,8 +427,8 @@ void read_nfc(){
         Serial.println("Ziel-Tag entfernt (stabilisiert).");
 
         // Signal versenden per MQTT
-        // String publishPayload = "play";
-        // Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        // String publishPayload = "play (nfc)";
+        // Serial.printf("Publishing (NFC only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
 
         nfc_tagCurrentlyPresent = false;                                  // Status auf "nicht anwesend" setzen

@@ -21,9 +21,9 @@
 ICM20948_WE myIMU = ICM20948_WE(ICM20948_ADDR);
 
 // WLAN und MQTT Einstellungen
-const char* ssid = "tinkergarden";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* pass = "strenggeheim";                                // @todo: add your wifi pw, "79854308499311013585"
-const char* mqtt_broker = "192.168.0.60";                         // z.B. "broker.emqx.io", "192.168.0.80"
+const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+const char* pass = "Energiepark2025.8";                                // @todo: add your wifi pw, "79854308499311013585"
+const char* mqtt_broker = "192.168.178.27";                         // z.B. "broker.emqx.io", "192.168.0.80"
 const char* mqtt_client_id = "sonne_lagesensor";
 const char* MQTT_PUBLISH_TOPIC_RFID = "sonne/lagesensor";         // Topics.  -   Diese werden für Subscribing und Publishing genutzt
 

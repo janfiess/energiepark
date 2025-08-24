@@ -18,12 +18,12 @@
 #include <WiFi.h>
 #include <MQTT.h>
 #include <Wire.h>                                                      // I2C
-#include <Adafruit_PN532.h>                                            // rfid Reader
+#include <Adafruit_PN532.h>                                           der // rfid Rea
 
 // WLAN und MQTT Einstellungen
-const char* ssid = "tinkergarden";                                
-const char* pass = "strenggeheim";                             
-const char* mqtt_broker = "192.168.0.60";                            
+const char* ssid = "Energiepark Technik";                                
+const char* pass = "Energiepark2025.8";                             
+const char* mqtt_broker = "192.168.178.25";                            
 const char* mqtt_client_id = "holz_rfid_station";
 
 const char* MQTT_PUBLISH_TOPIC_RFID = "holz/rfid";         

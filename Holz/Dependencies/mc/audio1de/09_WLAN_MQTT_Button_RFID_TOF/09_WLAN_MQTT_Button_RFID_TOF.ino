@@ -26,9 +26,12 @@
 
 
 // WLAN und MQTT Einstellungen
-const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
-const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
+// const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+const char* ssid = "LinusFetzMusikGast";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+// const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
+const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
+// const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
+const char* mqtt_broker = "broker.emqx.io";                            // "broker.emqx.io", "192.168.0.80"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";         // Topics.  -   Diese werden für Subscribing und Publishing genutzt
@@ -75,6 +78,7 @@ Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
 
 // Ziel-UID definieren (7 Bytes)
 const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
+String target_id = "14AA77D6";
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
 // --- Statusvariablen für die verbesserte Erkennung ---
@@ -142,34 +146,60 @@ void loop() {
     connectMQTT();
   }
 
-  read_tof();                                                            // get TOF "button" state
+  // read_tof();                                                            // get TOF "button" state
   read_nfc();                                                            // get NFC "button" state
 
 
-  if(nfc_tagCurrentlyPresent == true && tof_objectDetected == true){
-    is_object_detected = true;
-  }
-  else if(nfc_tagCurrentlyPresent == false && tof_objectDetected == false){
-    is_object_detected = false;
-  }
-  else return;
 
 
-  if(is_object_detected == prev_is_object_detected) return;
-  if(is_object_detected == true){
-    prev_is_object_detected = true;
+   // NFC
+  // nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
+  // nfc_isTargetTag = false;  
 
-    String publishPayload = "pause";
-    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  }
-  else if(is_object_detected == false){
-    prev_is_object_detected = false;
+  // if (nfc_tag_erkannt) {  
+  //   Serial.println("nfc_tag_erkannt");
+  //   // UID in Hex-String konvertieren
+  //   char nfc_payload[3 * sizeof(nfc_uid) + 1]; 
+  //   nfc_payload[0] = '\0'; 
 
-    String publishPayload = "play";
-    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  }
+  //   for (uint8_t i = 0; i < nfc_uidLength; i++) {
+  //     char byteStr[4];
+  //     sprintf(byteStr, "%02X", nfc_uid[i]);      
+  //     strcat(nfc_payload, byteStr);              
+  //   }
+
+  //   String current_RFID_string = nfc_payload; 
+  //   Serial.println(current_RFID_string);
+  // }
+
+
+
+
+
+  // if(nfc_tagCurrentlyPresent == true && tof_objectDetected == true){
+  //   is_object_detected = true;
+  // }
+  // else if(nfc_tagCurrentlyPresent == false && tof_objectDetected == false){
+  //   is_object_detected = false;
+  // }
+  // else return;
+
+
+  // if(is_object_detected == prev_is_object_detected) return;
+  // if(is_object_detected == true){
+  //   prev_is_object_detected = true;
+
+  //   String publishPayload = "pause";
+  //   Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  //   mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  // }
+  // else if(is_object_detected == false){
+  //   prev_is_object_detected = false;
+
+  //   String publishPayload = "play";
+  //   Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  //   mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  // }
 
 
 
@@ -178,6 +208,10 @@ void loop() {
 
   delay(100);                                                             // kurze Pause, entlastet den Prozessor
 }
+
+
+
+
 
 
 
@@ -336,13 +370,31 @@ void read_nfc(){
   nfc_isTargetTag = false;  
 
   
-  if (nfc_tag_erkannt) {                                                 // Prüfen, ob die erkannte UID der gewünschten UID entspricht
-    bool nfc_currentMatch = (nfc_uidLength == NFC_TARGET_UID_LENGTH);    // Prüfe erst ob die Längen der erkannten und der gewünschten IDs übereinstimmen
-    for (uint8_t i = 0; i < nfc_uidLength && nfc_currentMatch; i++) {    // Prüfe jetzt Byte für Byte, ob sie übereinstimmen
-      if (nfc_uid[i] != TARGET_UID[i]) nfc_currentMatch = false;
+
+
+
+
+  if (nfc_tag_erkannt) {  
+    // UID in Hex-String konvertieren
+    char nfc_payload[3 * sizeof(nfc_uid) + 1]; 
+    nfc_payload[0] = '\0'; 
+
+    for (uint8_t i = 0; i < nfc_uidLength; i++) {
+      char byteStr[4];
+      sprintf(byteStr, "%02X", nfc_uid[i]);      
+      strcat(nfc_payload, byteStr);              
     }
-    nfc_isTargetTag = nfc_currentMatch;                                  // Setze isTargetTag basierend auf dem Vergleich
+    String current_NFC_string = nfc_payload; 
+    // Serial.println(current_NFC_string);
+
+    if(current_NFC_string == target_id){
+      nfc_isTargetTag = true;
+      // Serial.println("der gezeigte ID ist der Gesuchte");
+    }
   }
+
+
+
 
   // --- Logik für die Bestätigung von Anwesenheit/Abwesenheit ---
   if (nfc_isTargetTag) {
@@ -353,15 +405,17 @@ void read_nfc(){
       nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;         // Zähler auf Max setzen, um Überlauf zu vermeiden
       if (!nfc_tagCurrentlyPresent) {  
 
+        Serial.printf("Ziel-Tag erkannt: %s\n", target_id);              // current_NFC_string == target_id 
+
         // Signal versenden per MQTT
         // String publishPayload = "pause";
         // Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         
-        for (uint8_t i = 0; i < nfc_uidLength; i++) {
-          Serial.print(nfc_uid[i], HEX); Serial.print(" ");
-        }
-        Serial.println();
+        // for (uint8_t i = 0; i < nfc_uidLength; i++) {
+        //   Serial.print(nfc_uid[i], HEX); Serial.print(" ");
+        // }
+ 
         nfc_tagCurrentlyPresent = true; // Status auf "anwesend" setzen
       }
     }

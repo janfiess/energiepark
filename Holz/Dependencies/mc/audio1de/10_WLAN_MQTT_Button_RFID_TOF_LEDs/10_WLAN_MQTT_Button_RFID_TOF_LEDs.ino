@@ -7,14 +7,27 @@
  *
  * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C)
  * Anschluss:
- * PN532: SDA <-> ESP32-C6: GPIO 6
- * PN532: SCL <-> ESP32-C6: GPIO 7
- * PN532: Vcc <-> ESP32-C6: 3.3V
- * PN532: GND <-> ESP32-C6: GND
+
+ * RFID/NFC: PN532, TOF: VL6180X
+ * RFID/NFC bzw. TOF: SDA <-> ESP32-C6: GPIO 6
+ * RFID/NFC bzw. TOF: SCL <-> ESP32-C6: GPIO 7
+ * RFID/NFC bzw. TOF: Vcc <-> ESP32-C6: 3.3V
+ * RFID/NFC bzw. TOF: GND <-> ESP32-C6: GND
+
+ * LED-Ring 
+ * WS2812B-Ring: Data In  <->  ESP32-C6: GPIO 5
+ * WS2812B-Ring: +5V/Vcc  <->  ESP32-C6: 5V
+ * WS2812B-Ring: GND      <->  ESP32-C6: GND
+
+ * Taster
+ * Taster Pin 1   <->  ESP32-C6: 3.3V
+ * Taster Pin 2   <->  ESP32-C6: GPIO 10
  *
- * Installiere Library "Adafruit_PN532" von Adafruit
- * Installiere Library "MQTT" von Joel Gaehwiler
- * Installiere Adafruit_VL6180X Library von Adafruit.
+ * Installiere folgende Libraries: 
+ * -  "Adafruit_PN532" von Adafruit
+ * -  "MQTT" von Joel Gaehwiler
+ * -  "Adafruit_VL6180X" von Adafruit
+ * -  "Adafruit_NeoPixel" von Adafruit
 ******************************************************************/
 
 
@@ -24,14 +37,18 @@
 #include "Adafruit_VL6180X.h"
 #include <Adafruit_PN532.h>                                            // NFC Reader
 #include "esp_log.h" 
+#include <Adafruit_NeoPixel.h>
 
 
 // WLAN und MQTT Einstellungen
-const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+// const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+const char* ssid = "tinkergarden";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
 // const char* ssid = "LinusFetzMusikGast";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
+// const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
+const char* pass = "strenggeheim";                             // @todo: add your wifi pw, "79854308499311013585"
 // const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
-const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
+// const char* mqtt_broker = "192.168.178.25";                            // "broker.emqx.io", "192.168.0.80"
+const char* mqtt_broker = "192.168.0.60";                            // "broker.emqx.io", "192.168.0.80"
 // const char* mqtt_broker = "broker.hivemq.com";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
@@ -96,12 +113,32 @@ bool nfc_tag_erkannt;                                                  // in die
 bool nfc_isTargetTag;                                                  // handelt es sich bei dem erkannten NFC Tag wirklich um den gewünschten? 
 
 
+// LED-Ring
 
 
-// algemein
+#define LED_PIN 5
+#define NUM_PIXELS 12
+#define DELAYVAL 500
+#define LED_BRIGHTNESS 80
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+
+// Taster
+
+#define TASTER_PIN 10
+int buttonState = 0;         
+int prev_buttonState = 0;
+
+
+// allgemein
 
 bool is_object_detected;                                               // diese Variable is nur dann true oder false, wenn alle Sensoren den Wert true bzw. false ausgeben
 bool prev_is_object_detected;
+
+
+
+
 
 
 
@@ -146,6 +183,19 @@ void setup() {
   init_tof();                                                           // TOF Sensor
   init_nfc();                                                           // NFC Sensor
 
+
+  // Init LED-Ring
+
+  strip.begin();
+  strip.setBrightness(LED_BRIGHTNESS);
+  strip.show();  
+
+
+  // Init Taster
+
+  pinMode(TASTER_PIN, INPUT_PULLDOWN);  // initialize the pushbutton pin as an input:
+
+
   Serial.println("Setup abgeschlossen.");
 }
 
@@ -158,10 +208,6 @@ void loop() {
   }
 
   read_nfc();                                                            // get NFC "button" state
-
-  // delay(200);
-
-
   read_tof();                                                            // get TOF "button" state
   // return;
 
@@ -170,7 +216,24 @@ void loop() {
 
 
 
+   // Alterative: Taster:
 
+  buttonState = digitalRead(TASTER_PIN);
+  if(buttonState != prev_buttonState) {
+    prev_buttonState = buttonState;
+    if (buttonState == 1) {
+        String publishPayload = "play";
+        Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+    }
+  }
+  
+
+
+
+  // Kombiniere states von TOF und RFI
+
+  
 
   if(nfc_tagCurrentlyPresent == true && tof_objectDetected == true){
     is_object_detected = true;
@@ -196,7 +259,6 @@ void loop() {
     Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
   }
-
 
 
 
@@ -262,6 +324,16 @@ void mqtt_messageReceived(String& topic, String& payload) {
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_LED)) {
     int numLedsToLight = payload.toInt();
     Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
+
+
+    // LED-Ring bespielen
+
+    for(int i=0; i<numLedsToLight; i++) {                   // für jeden einzelnen Pixel - in der Schleife
+      strip.setPixelColor(i, strip.Color(0, 255, 0));   // Werte: 0 - 255
+      strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
+    }
+
+
   }
 }
 

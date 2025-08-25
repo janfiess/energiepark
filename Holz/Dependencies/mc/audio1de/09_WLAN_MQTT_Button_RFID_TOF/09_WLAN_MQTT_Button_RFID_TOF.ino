@@ -27,12 +27,12 @@
 
 
 // WLAN und MQTT Einstellungen
-// const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* ssid = "LinusFetzMusikGast";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-// const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
-const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
-// const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
-const char* mqtt_broker = "broker.hivemq.com";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
+const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+// const char* ssid = "LinusFetzMusikGast";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
+// const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
+const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
+// const char* mqtt_broker = "broker.hivemq.com";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";         // Topics.  -   Diese werden für Subscribing und Publishing genutzt
@@ -54,7 +54,7 @@ MQTTClient mqttclient;
 // TOF Distanzsensor
 
 Adafruit_VL6180X tof = Adafruit_VL6180X();
-int tof_maxdistance = 20;                                                // 20 ~ 30mm -> Sensor misst ab ca 10mm
+int tof_maxdistance = 30;                                                // 30 ~ 40mm -> Sensor misst ab ca 10mm
 
 // --- Globale Variablen für die Zustandsverwaltung ---
 bool tof_objectDetected_temp = false;                                    // Aktueller Zustand (ohne Entprellung)
@@ -186,14 +186,14 @@ void loop() {
     prev_is_object_detected = true;
 
     String publishPayload = "pause";
-    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+    Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
   }
   else if(is_object_detected == false){
     prev_is_object_detected = false;
 
     String publishPayload = "play";
-    Serial.printf("Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+    Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
   }
 
@@ -288,7 +288,7 @@ void read_tof(){
 
   // Serial.printf("tof_range: %d\n", tof_range);
 
-  if (tof_status == VL6180X_ERROR_NONE) {
+  // if (tof_status == VL6180X_ERROR_NONE) {
 
 
     // 1.: Aktuellen Zustand (Objekt erkannt oder nicht) bestimmen -> Wird ein Objekt erkannt innerhalb des festgelegten Bereichs?
@@ -339,8 +339,10 @@ void read_tof(){
       // Serial.printf("Publishing (TOF only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
       // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
     }
-  }
+  // }
 }
+
+
 
 
 

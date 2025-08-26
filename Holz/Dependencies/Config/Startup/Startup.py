@@ -22,7 +22,7 @@ class Startup:
 		op.RFIDScanner.Sort_rfids( op.RFIDScanner.op("null_rfid_matching") )
 		
 
-		ui.openTextport()
+		#ui.openTextport()
 
 	
 	def Step3(self):

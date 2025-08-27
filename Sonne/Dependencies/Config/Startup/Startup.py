@@ -14,7 +14,8 @@ class Startup:
 		
 
 		
-		ui.openTextport()
+		#ui.openTextport()
+		return
 	
 	def Step3(self):
 		

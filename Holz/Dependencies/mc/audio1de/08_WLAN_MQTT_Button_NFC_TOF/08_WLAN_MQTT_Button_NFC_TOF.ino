@@ -26,9 +26,9 @@
 
 
 // WLAN und MQTT Einstellungen
-const char* ssid = "tinkergarden";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* pass = "strenggeheim";                             // @todo: add your wifi pw, "79854308499311013585"
-const char* mqtt_broker = "192.168.0.60";                            // "broker.emqx.io", "192.168.0.80"
+const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
+const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
+const char* mqtt_broker = "192.168.178.24";                            // "broker.emqx.io", "192.168.0.80"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";         // Topics.  -   Diese werden für Subscribing und Publishing genutzt

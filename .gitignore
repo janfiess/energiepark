@@ -7,3 +7,4 @@ Backup
 *[0-9].toe
 Dependencies/Outputs/Logger/Logfiles/logs*
 *.log
+/Sonne/Dependencies/Outputs/Logger/Logfiles

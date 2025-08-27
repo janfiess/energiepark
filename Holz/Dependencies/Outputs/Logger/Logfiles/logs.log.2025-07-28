@@ -1,0 +1,12 @@
+2025-08-24 15:56:09 - DEBUG - [Logger]: START APPLICATION
+2025-08-24 15:56:11 - DEBUG - [MQTT_out]: MQTT OUT (retained) --- Topic: holz/app/low_fps - Payload: 0
+2025-08-24 15:56:11 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio1_DE
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio1_EN
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio2_DE
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio2_EN
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio3
+2025-08-24 15:56:19 - INFO - [ScenePlayer]: pausing Audio4
+2025-08-24 15:56:44 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-08-24 15:56:56 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 35727D00
+2025-08-24 15:57:27 - DEBUG - [Logger]: CLOSE APPLICATION

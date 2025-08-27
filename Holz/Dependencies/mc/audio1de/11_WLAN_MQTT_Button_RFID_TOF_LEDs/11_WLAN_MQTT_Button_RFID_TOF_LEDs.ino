@@ -53,7 +53,7 @@ const char* mqtt_broker = "192.168.0.60";                            // "broker.
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
-const char* MQTT_SUBSCRIBE_TOPIC_LED = " holz/ledring_audio1de/numsections";      // Payload: 0 - 12
+const char* MQTT_SUBSCRIBE_TOPIC_LED = "holz/ledring_audio1de/numsections";      // Payload: 0 - 12
 const char* subscribe_topics[] = { MQTT_SUBSCRIBE_TOPIC_LED };         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
 
 WiFiClient wificlient;
@@ -281,7 +281,7 @@ void connectWiFi() {
   WiFi.begin(ssid, pass);
 
   int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {                // Max 20 Versuche (10 Sekunden)
+  while (WiFi.status() != WL_CONNECTED && attempts < 40) {                // Max 20 Versuche (10 Sekunden)
     delay(500);
     Serial.print(".");
     attempts++;
@@ -289,7 +289,8 @@ void connectWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("\nWiFi verbunden: SSID: %s, IP-Adresse: %s\n", ssid, WiFi.localIP().toString().c_str());
   } else {
-    Serial.println("\nWiFi Verbindung fehlgeschlagen!");
+    Serial.println("\nWiFi Verbindung fehlgeschlagen! Neustart ...");
+    ESP.restart();   // Neustart auslösen
   }
 }
 
@@ -314,6 +315,8 @@ void connectMQTT() {                                                      // Die
     Serial.printf("Abonniert Topic: %s\n", subscribe_topics[i]);          // Bestätigung des Abonnements
   }
 }
+
+
 
 
 // --- MQTT Callback für eingehende Nachrichten ---

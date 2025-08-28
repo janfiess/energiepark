@@ -53,8 +53,9 @@ const char* mqtt_broker = "192.168.0.60";                            // "broker.
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
-const char* MQTT_SUBSCRIBE_TOPIC_LED = " holz/ledring_audio1de/numsections";      // Payload: 0 - 12
-const char* subscribe_topics[] = { MQTT_SUBSCRIBE_TOPIC_LED };         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
+const char* MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio1de/numsections";      // Payload: 0 - 12
+const char* MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio1de/state"; 
+const char* subscribe_topics[] = { MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING, MQTT_SUBSCRIBE_TOPIC_TRACK_STATE};         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
 
 WiFiClient wificlient;
 MQTTClient mqttclient;
@@ -119,7 +120,7 @@ bool nfc_isTargetTag;                                                  // handel
 #define LED_PIN 5
 #define NUM_PIXELS 12
 #define DELAYVAL 500
-#define LED_BRIGHTNESS 80
+#define LED_BRIGHTNESS 50
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -188,6 +189,12 @@ void setup() {
 
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
+
+
+  strip.clear();
+  for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
+    strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
+  }
   strip.show();  
 
 
@@ -225,6 +232,9 @@ void loop() {
         String publishPayload = "play";
         Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
         mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        strip.clear();
+        strip.show();  
+        
     }
   }
   
@@ -281,7 +291,7 @@ void connectWiFi() {
   WiFi.begin(ssid, pass);
 
   int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {                // Max 20 Versuche (10 Sekunden)
+  while (WiFi.status() != WL_CONNECTED && attempts < 40) {                // Max 20 Versuche (10 Sekunden)
     delay(500);
     Serial.print(".");
     attempts++;
@@ -289,7 +299,8 @@ void connectWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("\nWiFi verbunden: SSID: %s, IP-Adresse: %s\n", ssid, WiFi.localIP().toString().c_str());
   } else {
-    Serial.println("\nWiFi Verbindung fehlgeschlagen!");
+    Serial.println("\nWiFi Verbindung fehlgeschlagen! Neustart ...");
+    ESP.restart();   // Neustart auslösen
   }
 }
 
@@ -316,24 +327,43 @@ void connectMQTT() {                                                      // Die
 }
 
 
+
+
 // --- MQTT Callback für eingehende Nachrichten ---
 void mqtt_messageReceived(String& topic, String& payload) {
-  Serial.println("MQTT Nachricht empfangen:");
-  Serial.printf("  Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());  // .c_str() verwenden!
+  Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
 
-  if (topic.equals(MQTT_SUBSCRIBE_TOPIC_LED)) {
+  if (topic.equals(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING)) {
     int numLedsToLight = payload.toInt();
-    Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
+    // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
 
 
     // LED-Ring bespielen
 
+    strip.clear();
     for(int i=0; i<numLedsToLight; i++) {                   // für jeden einzelnen Pixel - in der Schleife
+      
       strip.setPixelColor(i, strip.Color(0, 255, 0));   // Werte: 0 - 255
+      // Serial.print("i");
+    }
+    strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
+    // Serial.println();
+
+
+  }
+
+
+  if (topic.equals(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE)) {
+    Serial.printf("Empfangen: %s \n", payload);                // %d für Integer
+
+    if(payload == "ended"){
+
+      strip.clear();
+      for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
+        strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
+      }
       strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
     }
-
-
   }
 }
 

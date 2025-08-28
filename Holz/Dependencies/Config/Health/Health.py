@@ -18,7 +18,7 @@ class Health:
 		
 		if(op("null_fps_too_low")[0]) == 1:
 			current_fps = int(op("null_fps")[0])
-			op.MQTT_out.SendMQTT_retained(topic_prefix + "app/low_fps", current_fps)
+			# op.MQTT_out.SendMQTT_retained(topic_prefix + "app/low_fps", current_fps)
 			op("timer_when_fps_too_low").par.start.pulse()
 			
 	def OnParamChanged(self, par):

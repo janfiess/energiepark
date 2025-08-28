@@ -76,6 +76,18 @@ class MQTTin:
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio2_EN")
 				
+		elif(topic == self.topic_prefix + "player/audio3"): 
+			if(payload == "play"):
+				op.Audiostationen.Play_audio("Audio3")
+			elif(payload == "pause"):
+				op.Audiostationen.Pause_audio("Audio3")
+				
+		elif(topic == self.topic_prefix + "player/audio4"): 
+			if(payload == "play"):
+				op.Audiostationen.Play_audio("Audio4")
+			elif(payload == "pause"):
+				op.Audiostationen.Pause_audio("Audio4")
+				
 		# RFID-Stationen
 		
 		elif(topic == self.topic_prefix + "rfid"):  

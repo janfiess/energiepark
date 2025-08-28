@@ -189,6 +189,12 @@ void setup() {
 
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
+
+
+  strip.clear();
+  for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
+    strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
+  }
   strip.show();  
 
 
@@ -325,12 +331,11 @@ void connectMQTT() {                                                      // Die
 
 // --- MQTT Callback für eingehende Nachrichten ---
 void mqtt_messageReceived(String& topic, String& payload) {
-  Serial.println("MQTT Nachricht empfangen:");
-  Serial.printf("  Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());  // .c_str() verwenden!
+  Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
 
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING)) {
     int numLedsToLight = payload.toInt();
-    Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
+    // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
 
 
     // LED-Ring bespielen
@@ -354,10 +359,8 @@ void mqtt_messageReceived(String& topic, String& payload) {
     if(payload == "ended"){
 
       strip.clear();
-      for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife
-        
-        strip.setPixelColor(i, strip.Color(50, 100, 0));   // Werte: 0 - 255
-        // Serial.print("i");
+      for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
+        strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
       }
       strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
     }

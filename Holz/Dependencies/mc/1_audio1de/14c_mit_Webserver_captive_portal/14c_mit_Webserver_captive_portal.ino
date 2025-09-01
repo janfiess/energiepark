@@ -35,8 +35,8 @@ void handleRoot();
 
 
 void setup() {
-  delay(1000);
   Serial.begin(115200);
+  delay(1000);
 
   // Gespeicherte WLAN-Daten laden, falls bereits per Setup-Seite festgelegt
 
@@ -62,9 +62,7 @@ void setup() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("Erfolgreich verbunden!");
-    Serial.print("IP-Adresse: ");
-    Serial.println(WiFi.localIP());
+    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str() );
     apMode = false;
   } 
   
@@ -74,7 +72,7 @@ void setup() {
     Serial.println("Keine Verbindung, starte Access Point...");
 
     // Eigenes WLAN starten (Access Point)
-    WiFi.softAP("ESP32-Setup");                   // offen, ohne Passwort
+    WiFi.softAP("ESP32-Setuuup");                   // offen, ohne Passwort
     // Serial.println("Access Point gestartet: ESP32-Setup");
 
     IPAddress apIP = WiFi.softAPIP();           // @neu für Captive Portal
@@ -178,8 +176,7 @@ void handleSave() {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println();
       Serial.println("Direkt nach Setup verbunden!");
-      Serial.print("IP-Adresse: ");
-      Serial.println(WiFi.localIP());
+      Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str() );
     } else {
       Serial.println();
       Serial.println("Konnte sich nach Speichern nicht sofort verbinden.");

@@ -27,10 +27,23 @@
  * -  "Adafruit_PN532" von Adafruit
  * -  "MQTT" von Joel Gaehwiler
  * -  "Adafruit_NeoPixel" von Adafruit
+ *
+ *
+ Mit diesem Code erzeugt der ESP einen Access Point namens "ESP32-Setup" ohne Passwort.
+Mit diesem Code kommt man direkt auf die Config-Website, ohne dass man die IP Adresse eintippen muss, wie im Hotel-WLAN ("Captive Portal").
+Dazu starten wir einen DNS-Server, der alle Domains auf die ESP-IP 192.168.4.1 umleitet.
+Auf der Setup-Website kann man dann wie gehabt Variablen im Code benennen, wie z. B. SSID und Passwort eines Netzwerks, mit dem sich der ESP verbinden soll. 
+Das wird dann im Flash Speicher des ESP gespeichert, damit er sich diese Info beim nächsten Start direkt abrufen kann 
+und sich z. B. ohne Nachfrage mit einem Netzwerk verbinden kann.
+
 ******************************************************************/
 
 
 #include <WiFi.h>
+#include <WebServer.h>
+#include <Preferences.h>
+#include <DNSServer.h>                  // @neu für Captive Portal
+
 #include <MQTT.h>
 #include <Wire.h>                                                      // I2C
 // #include "Adafruit_VL6180X.h"
@@ -39,27 +52,29 @@
 #include <Adafruit_NeoPixel.h>
 
 
-// WLAN und MQTT Einstellungen
-// const char* ssid = "Energiepark Technik";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-const char* ssid = "tinkergarden";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-// const char* ssid = "LinusFetzMusikGast";                                // @todo: add your wifi name "FRITZ!Box 6690 TA"
-// const char* pass = "Energiepark2025.8";                             // @todo: add your wifi pw, "79854308499311013585"
-const char* pass = "strenggeheim";                             // @todo: add your wifi pw, "79854308499311013585"
-// const char* pass = "linusfetzgast";                             // @todo: add your wifi pw, "79854308499311013585"
-// const char* mqtt_broker = "192.168.178.25";                            // "broker.emqx.io", "192.168.0.80"
-const char* mqtt_broker = "192.168.0.60";                            // "broker.emqx.io", "192.168.0.80"
-// const char* mqtt_broker = "broker.hivemq.com";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
+Preferences preferences;
+
+// Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
+String targetSSID = "";                 // "Energiepark Technik", "tinkergarden", "LinusFetzMusikGast"
+String targetPassword = "";             // "Energiepark2025.8", "strenggeheim", "linusfetzgast"
+WiFiClient wificlient;
+
+bool apMode = false;
+
+// Lokaler Webserver auf Port 80
+WebServer server(80);
+DNSServer dnsServer;                    // @neu für Captive Portal
+const byte DNS_PORT = 53;               // @neu für Captive Portal.  // DNS-Server: Alle Anfragen -> ESP32
+
+// MQTT
+const char* mqtt_broker = "192.168.0.60";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
 const char* MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio1de/numsections";      // Payload: 0 - 12
 const char* MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio1de/state"; 
 const char* subscribe_topics[] = { MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING, MQTT_SUBSCRIBE_TOPIC_TRACK_STATE};         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
-
-WiFiClient wificlient;
 MQTTClient mqttclient;
-
-
 
 
 // I2C Pins definieren
@@ -67,28 +82,7 @@ MQTTClient mqttclient;
 #define SCL_PIN 7
 
 
-
-// TOF Distanzsensor
-
-/*
-Adafruit_VL6180X tof = Adafruit_VL6180X();
-int tof_maxdistance = 2;                                                // 30 ~ 40mm -> Sensor misst ab ca 10mm
-
-// --- Globale Variablen für die Zustandsverwaltung ---
-bool tof_objectDetected_temp = false;                                    // Aktueller Zustand (ohne Entprellung)
-bool tof_objectDetected = false;                                         // Endgültiger Zustand (nach Entprellung) -> Wert gilt als endgültig, sobald mehrmals derselbe Wert erkannt wurde
-
-// Array zum Speichern der letzten Zustände für die Entprellung
-const int tof_toleranz_entprellung = 5;
-bool tof_prevStates[tof_toleranz_entprellung]; 
-int tof_state_index = 0;                                                 // Index für das Array
-int tof_timestamp_prev_detected = 0;
-
-*/
-
-
 // NFC Reader
-
 // IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)
@@ -117,8 +111,6 @@ bool nfc_isTargetTag;                                                  // handel
 
 
 // LED-Ring
-
-
 #define LED_PIN 5
 #define NUM_PIXELS 12
 #define DELAYVAL 500
@@ -128,174 +120,198 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_K
 
 
 // Taster
-
 #define TASTER_PIN 10
 int buttonState = 0;         
 int prev_buttonState = 0;
 
 
 // allgemein
-
 bool is_object_detected;                                               // diese Variable is nur dann true oder false, wenn alle Sensoren den Wert true bzw. false ausgeben
 bool prev_is_object_detected;
-
-
-
-
-
 
 
 // Funktionsprototypen
 void connectWiFi();
 void connectMQTT();
 void mqtt_messageReceived(String& topic, String& payload);
-// void init_tof();
-// void read_tof();
 void init_nfc();
 void read_nfc();
+
+String htmlPage();
+void handleSave();
+void handleRoot();
 
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);                                                           // warten, sonst werden die Serial.print in setup() nicht auf die Komsole gedruckt
+  delay(1000);
   Serial.println("Kopfhörer-Station startet...");
 
-  // WLAN verbinden
-  connectWiFi();
 
-  // --- MQTT Client initialisieren und Callback setzen ---
-  // Diese Zeilen müssen hier stehen und nicht in connectMQTT()
-  mqttclient.begin(mqtt_broker, wificlient);
-  mqttclient.onMessage(mqtt_messageReceived);
-  connectMQTT();
+
+
+
+
+
+  // Gespeicherte WLAN-Daten laden, falls bereits per Setup-Seite festgelegt
+  preferences.begin("wifi", true);
+  targetSSID = preferences.getString("ssid", "");
+  targetPassword = preferences.getString("password", "");
+  preferences.end();
+  Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
+
+  // Versuche, mit den gespeicherten Daten zu verbinden
+  if (targetSSID != "") {
+    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: %s\n", targetSSID.c_str());
+    WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
+    unsigned long startAttemptTime = millis();
+
+    // Versuche 10 Sekunden lang
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println();
+  }
+
+  // Überprüfe den WLAN-Status und handle entsprechend
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str());
+    apMode = false;
+
+    // --- MQTT Client initialisieren und Callback setzen ---
+    mqttclient.begin(mqtt_broker, wificlient);
+    mqttclient.onMessage(mqtt_messageReceived);
+    connectMQTT();
+  } else {
+    // Falls keine Verbindung zustande kommt, starte den Access Point
+    Serial.println("Keine Verbindung, starte Access Point...");
+
+    // Eigenes WLAN starten (Access Point)
+    WiFi.softAP("ESP32-Setupp");                   // offen, ohne Passwort
+
+    IPAddress apIP = WiFi.softAPIP();           // @neu für Captive Portal
+    Serial.print("AP gestartet, IP: ");
+    Serial.println(apIP);                       // @neu für Captive Portal
+
+    // DNS-Server: Alle Domains -> ESP
+    dnsServer.start(DNS_PORT, "*", apIP);
+
+    // Webserver starten
+    server.on("/", handleRoot);         // falls 192.168.4.1 aufgerufen wurde, führe die Funktion handleRoot() aus
+    server.on("/save", handleSave);     // falls 192.168.4.1/save aufgerufen wurde, führe die Funktion handleSave() aus
+    server.onNotFound(handleRoot);              // @neu für Captive Portal       alles auf Setup-Seite leiten
+    server.begin();
+    Serial.println("Webserver + DNS gestartet (Captive Portal aktiv)");
+    apMode = true;   // wir sind im AP-Modus
+  }
+
+
+
+  
+
 
   // I2C
-
-  // Harte Methode: ESP32-I2C-Logger komplett ausschalten, sonst wird Konsole zugemüllt
   esp_log_set_vprintf([](const char *fmt, va_list args) -> int {
     (void)fmt;   // ignore
     (void)args;  // ignore
     return 0;    // nichts ausgeben
   });
 
-
-
   Wire.begin(SDA_PIN, SCL_PIN);                                         // Wire starten mit den benutzerdefinierten I2C Pins
-
-
-  // init_tof();                                                           // TOF Sensor
   init_nfc();                                                           // NFC Sensor
 
-
   // Init LED-Ring
-
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
-
-
   strip.clear();
   for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
     strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
   }
   strip.show();  
 
-
   // Init Taster
-
   pinMode(TASTER_PIN, INPUT_PULLDOWN);  // initialize the pushbutton pin as an input:
 
 
-  Serial.println("Setup abgeschlossen.");
+
+
+  Serial.println("Setup abgeschlossen."); 
+  
+  
 }
 
 void loop() {
+  dnsServer.processNextRequest();                // @neu für Captive Portal
+  server.handleClient();
+ 
+  // Nur im STA-Modus reconnecten!
+  if (!apMode && targetSSID != "" && WiFi.status() != WL_CONNECTED) {
+    Serial.println("Versuche Verbindung mit gespeicherten Daten...");
+    connectWiFi();
+    delay(10000);
+  }
+  
   // MQTT
-  mqttclient.loop();                                                    // MQTT Loop regelmässig aufrufen, um die Verbindung am Leben zu halten und Nachrichten zu empfangen  
-  if (!mqttclient.connected()) {                                        // Überprüfen, ob die MQTT-Verbindung aktiv ist. Wenn nicht, versuchen wir uns neu zu verbinden.
-    Serial.println("MQTT Verbindung verloren. Versuche Neuverbindung...");
-    connectMQTT();
+  if (!apMode) {
+    mqttclient.loop();                                                    // MQTT Loop regelmässig aufrufen, um die Verbindung am Leben zu halten und Nachrichten zu empfangen  
+    if (!mqttclient.connected()) {                                        // Überprüfen, ob die MQTT-Verbindung aktiv ist. Wenn nicht, versuchen wir uns neu zu verbinden.
+      Serial.println("MQTT Verbindung verloren. Versuche Neuverbindung...");
+      connectMQTT();
+    }
   }
 
+  // RFID
   read_nfc();                                                            // get NFC "button" state
-  // read_tof();                                                            // get TOF "button" state
-  // return;
 
-
-
-
-
-
-   // Alterative: Taster:
-
+  // Alterative: Taster:
   buttonState = digitalRead(TASTER_PIN);
   if(buttonState != prev_buttonState) {
     prev_buttonState = buttonState;
     if (buttonState == 1) {
-        String publishPayload = "play";
-        Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      String publishPayload = "play";
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      if(mqttclient.connected()) {
         mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        strip.clear();
-        strip.show();  
-        
+      }
+      strip.clear();
+      strip.show();  
     }
   }
-  
 
-
-  if(is_object_detected == prev_is_object_detected) return;
-  if(is_object_detected == true){
-    prev_is_object_detected = true;
-
-    String publishPayload = "pause";
-    Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+  if(is_object_detected != prev_is_object_detected) {
+    prev_is_object_detected = is_object_detected;
+    
+    if(is_object_detected) {
+      String publishPayload = "pause";
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      if(mqttclient.connected()) {
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      }
+    } else {
+      String publishPayload = "play";
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      if(mqttclient.connected()) {
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      }
+    }
   }
-  else if(is_object_detected == false){
-    prev_is_object_detected = false;
-
-    String publishPayload = "play";
-    Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-    mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-  }
-
-
-
-
 
   delay(100);                                                             // kurze Pause, entlastet den Prozessor
 }
 
-
-
-
-
-
-
-
-// --- WLAN Funktionen ---
-
+/********************
+ * WLAN-Funktionen
+ ********************/
 void connectWiFi() {
-  Serial.printf("Verbinde mit WLAN %s", ssid);                            // ssid ist const char*, kein String(ssid) nötig
-  WiFi.begin(ssid, pass);
-
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 40) {                // Max 20 Versuche (10 Sekunden)
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("\nWiFi verbunden: SSID: %s, IP-Adresse: %s\n", ssid, WiFi.localIP().toString().c_str());
-  } else {
-    Serial.println("\nWiFi Verbindung fehlgeschlagen! Neustart ...");
-    ESP.restart();   // Neustart auslösen
-  }
+  // Diese Funktion wurde geleert, da die Verbindungslogik jetzt in setup() behandelt wird.
+  // Es ist besser, die Verbindung nur einmal im setup() zu versuchen. Wenn sie verloren geht,
+  // wird in der loop() der Reconnect-Mechanismus ausgelöst.
 }
 
-
-
-// --- MQTT Funktionen ---
-
+/********************
+ * MQTT-Funktionen
+ ********************/
 void connectMQTT() {                                                      // Diese Funktion kümmert sich nur noch um den eigentlichen Verbindungsaufbau und das Abonnement.
   Serial.printf("Verbinde mit MQTT Broker: %s\n", mqtt_broker);
   int attempts = 0;
@@ -319,10 +335,9 @@ void connectMQTT() {                                                      // Die
   }
 }
 
-
-
-
-// --- MQTT Callback für eingehende Nachrichten ---
+/****************************************
+ * MQTT Callback für eingehende Nachrichten
+ ****************************************/
 void mqtt_messageReceived(String& topic, String& payload) {
   Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
 
@@ -330,27 +345,18 @@ void mqtt_messageReceived(String& topic, String& payload) {
     int numLedsToLight = payload.toInt();
     // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
 
-
     // LED-Ring bespielen
-
     strip.clear();
     for(int i=0; i<numLedsToLight; i++) {                   // für jeden einzelnen Pixel - in der Schleife
-      
       strip.setPixelColor(i, strip.Color(0, 255, 0));   // Werte: 0 - 255
-      // Serial.print("i");
     }
     strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
-    // Serial.println();
-
-
   }
-
 
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE)) {
     Serial.printf("Empfangen: %s \n", payload);                // %d für Integer
 
     if(payload == "ended"){
-
       strip.clear();
       for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
         strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
@@ -360,91 +366,12 @@ void mqtt_messageReceived(String& topic, String& payload) {
   }
 }
 
-
-/*
-void init_tof(){                                                          // wird in start() aufgerufen
-  if (! tof.begin()) {
-    Serial.println("Failed to find TOF sensor");
-    while (1);
-  }
-  Serial.println("TOF Sensor found!");
-
-
-  for(int i=0; i < tof_toleranz_entprellung; i++){
-    tof_prevStates[i] = false;
-  }
-}
-
-
-
-void read_tof(){
-  uint8_t tof_range = tof.readRange();
-  uint8_t tof_status = tof.readRangeStatus();
-
-  // Serial.printf("tof_range: %d\n", tof_range);
-
-  // if (tof_status == VL6180X_ERROR_NONE) {
-
-
-    // 1.: Aktuellen Zustand (Objekt erkannt oder nicht) bestimmen -> Wird ein Objekt erkannt innerhalb des festgelegten Bereichs?
-          
-    if (tof_range < tof_maxdistance) {
-      tof_objectDetected_temp = true;
-      // Serial.println("Object detected");
-    } else {
-      tof_objectDetected_temp = false;
-    }
-
-
-    // 2.: Zustand für Entprellung speichern -> Mehrere Werte aufnehmen und miteinander vergleichen
-
-    tof_prevStates[tof_state_index] = tof_objectDetected_temp;
-    tof_state_index = (tof_state_index + 1) % tof_toleranz_entprellung;    // Index zyklisch erhöhen (0, 1, 2, 3, 4, 0, ...)
-
-    // 3. Entprellte Logik prüfen und Ausgabe steuern
-    bool tof_all_detected = true;
-    bool tof_none_detected = true;
-
-    for (int i = 0; i < tof_toleranz_entprellung; i++) {
-      if (!tof_prevStates[i]) {
-        tof_all_detected = false;
-      }
-      if (tof_prevStates[i]) {
-        tof_none_detected = false;
-      }
-    }
-
-    if (tof_all_detected && !tof_objectDetected) {                          // Wenn alle der letzten Werte gleich sind und der endgültige Zustand sich ändert
-      tof_objectDetected = true;
-      Serial.printf("Objekt in der Nähe (Distanz: %d)\n", tof_range);
-
-      // Signal versenden per MQTT
-      // String publishPayload = "pause";
-      // Serial.printf("Publishing (TOF only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-      // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-
-
-
-    } else if (tof_none_detected && tof_objectDetected) {
-      tof_objectDetected = false;
-      Serial.printf("kein Objekt in der Nähe (Distanz: %d)\n", tof_range);
-
-       // Signal versenden per MQTT
-      // String publishPayload = "play";
-      // Serial.printf("Publishing (TOF only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-      // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-    }
-  // }
-}
-
-*/
-
-
-
-
-
-
+/******************
+ * NFC-Funktionen
+ ******************/
 void init_nfc(){                                                          // wird in start() aufgerufen
+  // Wir nutzen die I2C-Konfiguration, die in Wire.begin() gestartet wird.
+  // Daher ist ein nfc.begin() hier ausreichend, um die Kommunikation zu starten.
   nfc.begin();                                                          // NFC Reader PN532 starten
   uint32_t nfc_versiondata = nfc.getFirmwareVersion();                  // Firmware-Version abfragen
   if (!nfc_versiondata) {
@@ -461,16 +388,10 @@ void init_nfc(){                                                          // wir
   Serial.println("Warte auf ein RFID/NFC Tag...");
 }
 
-
-
 void read_nfc(){
   // NFC
   nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
   nfc_isTargetTag = false;  
-
-  
-
-
 
   String current_NFC_string = "";
 
@@ -493,9 +414,6 @@ void read_nfc(){
     }
   }
 
-
-
-
   // --- Logik für die Bestätigung von Anwesenheit/Abwesenheit ---
   if (nfc_isTargetTag) {
     nfc_absentConfirmCounter = 0;                                        // Reset des Abwesenheitszählers
@@ -504,15 +422,7 @@ void read_nfc(){
     if (nfc_presentConfirmCounter >= NFC_CONFIRM_PRESENT_THRESHOLD) {    // Wenn der Tag oft genug hintereinander bestätigt wurde   
       nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;         // Zähler auf Max setzen, um Überlauf zu vermeiden
       if (!is_object_detected) {  
-
         Serial.printf("Ziel-Tag erkannt: %s\n", current_NFC_string);              // current_NFC_string == target_id 
-
-        // Signal versenden per MQTT
-        // String publishPayload = "pause (nfc)";
-        // Serial.printf("Publishing (NFC only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        
-
         is_object_detected = true; // Status auf "anwesend" setzen
       }
     }
@@ -524,14 +434,78 @@ void read_nfc(){
       nfc_absentConfirmCounter = NFC_CONFIRM_ABSENT_THRESHOLD;            // Wenn der Tag oft genug hintereinander NICHT gelesen wurde -> Zähler auf Max setzen
       if (is_object_detected) {                                      // Wenn der Tag vorher als anwesend galt, jetzt aber nicht mehr      
         Serial.println("Ziel-Tag entfernt (entprellt).");
-
-        // Signal versenden per MQTT
-        // String publishPayload = "play (nfc)";
-        // Serial.printf("Publishing (NFC only): Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-        // mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
-
         is_object_detected = false;                                  // Status auf "nicht anwesend" setzen
       }
+    }
+  }
+}
+
+/***********************
+ * Webserver-Funktionen
+ ***********************/
+String htmlPage() {
+  String page = "<!DOCTYPE html><html><head><meta charset='utf-8'>";
+  page += "<title>ESP32-C6 Setup</title></head><body>";
+  page += "<h2>WLAN Einstellungen</h2>";
+  page += "<form action='/save' method='POST'>";
+  page += "SSID: <input type='text' name='ssid' value='" + targetSSID + "'><br><br>";
+  page += "Passwort: <input type='password' name='password' value='" + targetPassword + "'><br><br>";
+  page += "<input type='submit' value='Speichern & Verbinden'>";
+  page += "</form>";
+  page += "</body></html>";
+  return page;
+}
+
+// "/" → wenn 192.168.4.1 aufgerufen wird: Formular anzeigen (diese Funktion ist in setup() hinterlegt)
+void handleRoot() {
+  server.send(200, "text/html", htmlPage());
+}
+
+// "/save" → wenn 192.168.4.1/save aufgerufen wurd, also wenn Formular abgeschickt wurde: Daten speichern und WLAN verbinden (dieser Funktionsaufruf ist in setup() hinterlegt)
+void handleSave() {
+  if (server.method() == HTTP_POST) {
+    if (server.hasArg("ssid")) {
+      targetSSID = server.arg("ssid");
+      targetSSID.trim();      // Führende und nachfolgende Leerzeichen entfernen, um Verbindungsfehler zu vermeiden
+    }
+    if (server.hasArg("password")) {
+      targetPassword = server.arg("password");
+      targetPassword.trim();
+    }
+
+    // Im Flash speichern
+    preferences.begin("wifi", false);
+    preferences.putString("ssid", targetSSID);
+    preferences.putString("password", targetPassword);
+    preferences.end();
+
+    // Rückmeldung
+    String response = "<!DOCTYPE html><html><body>";
+    response += "<h2>Daten gespeichert!</h2>";
+    response += "<p>SSID: " + targetSSID + "</p>";
+    response += "<p>Passwort: (versteckt)</p>";
+    response += "<p>ESP versucht, sich zu verbinden...</p>";
+    response += "</body></html>";
+
+    server.send(200, "text/html", response);
+
+    // WLAN Verbindung starten
+    delay(1000);
+    WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
+
+    unsigned long startAttemptTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+      delay(500);
+      Serial.print(".");
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println();
+      Serial.println("Direkt nach Setup verbunden!");
+      Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str() );
+    } else {
+      Serial.println();
+      Serial.println("Konnte sich nach Speichern nicht sofort verbinden.");
     }
   }
 }

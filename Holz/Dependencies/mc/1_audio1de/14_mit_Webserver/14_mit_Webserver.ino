@@ -148,11 +148,14 @@ void handleRoot();
 
 
 
+
+
+
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("Kopfhörer-Station startet...");
-
 
   // Gespeicherte WLAN-Daten laden, falls bereits per Setup-Seite festgelegt
   preferences.begin("wifi", true);
@@ -163,12 +166,13 @@ void setup() {
   target_rfid_2 = preferences.getString("target_rfid_2", "");
   device_id = preferences.getString("device_id", "");
   preferences.end();
-  Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
-
+  Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", 
+                targetSSID.c_str(), targetPassword.c_str());
 
   // Versuche, mit den gespeicherten Daten zu verbinden
   if (targetSSID != "") {
-    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: '%s' (PW: '%s')\n", targetSSID.c_str(), targetPassword.c_str());
+    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: '%s' (PW: '%s')\n", 
+                  targetSSID.c_str(), targetPassword.c_str());
     WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
     unsigned long startAttemptTime = millis();
 
@@ -182,7 +186,8 @@ void setup() {
 
   // Überprüfe den WLAN-Status und handle entsprechend
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str());
+    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", 
+                  targetSSID.c_str(), WiFi.localIP().toString().c_str());
     apMode = false;
 
     // --- MQTT Client initialisieren und Callback setzen ---
@@ -190,41 +195,33 @@ void setup() {
     mqttclient.onMessage(mqtt_messageReceived);
     connectMQTT();
 
-    // --- NEU: Webserver auch im STA-Modus aktivieren ---
-    server.on("/", handleRoot);
-    server.on("/save", handleSave);
-    server.onNotFound(handleRoot);
-    server.begin();
-    Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
-
-
   } else {
     // Falls keine Verbindung zustande kommt, starte den Access Point
     Serial.println("Keine Verbindung, starte Access Point...");
 
-    // Eigenes WLAN starten (Access Point)
-    WiFi.softAP("ESP32-Setupp");                   // offen, ohne Passwort
+    WiFi.softAP("ESP32-Setupp");  // offen, ohne Passwort
 
-    IPAddress apIP = WiFi.softAPIP();           // @neu für Captive Portal
+    IPAddress apIP = WiFi.softAPIP();
     Serial.print("AP gestartet, IP: ");
-    Serial.println(apIP);                       // @neu für Captive Portal
+    Serial.println(apIP);
 
     // DNS-Server: Alle Domains -> ESP
     dnsServer.start(DNS_PORT, "*", apIP);
 
-    // Webserver starten
-    server.on("/", handleRoot);         // falls 192.168.4.1 aufgerufen wurde, führe die Funktion handleRoot() aus
-    server.on("/save", handleSave);     // falls 192.168.4.1/save aufgerufen wurde, führe die Funktion handleSave() aus
-    server.onNotFound(handleRoot);              // @neu für Captive Portal       alles auf Setup-Seite leiten
-    server.begin();
-    Serial.println("Webserver + DNS gestartet (Captive Portal aktiv)");
     apMode = true;   // wir sind im AP-Modus
   }
 
+  // --- EINMALIG: Webserver starten, unabhängig von STA oder AP ---
+  server.on("/", handleRoot);
+  server.on("/save", handleSave);
+  server.onNotFound(handleRoot);
+  server.begin();
 
-
-  
-
+  if (apMode) {
+    Serial.println("Webserver + DNS gestartet (Captive Portal aktiv)");
+  } else {
+    Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
+  }
 
   // I2C
   esp_log_set_vprintf([](const char *fmt, va_list args) -> int {
@@ -233,37 +230,37 @@ void setup() {
     return 0;    // nichts ausgeben
   });
 
-  Wire.begin(SDA_PIN, SCL_PIN);                                         // Wire starten mit den benutzerdefinierten I2C Pins
-  init_nfc();                                                           // NFC Sensor
+  Wire.begin(SDA_PIN, SCL_PIN);   // Wire starten mit den benutzerdefinierten I2C Pins
+  init_nfc();                     // NFC Sensor
 
   // Init LED-Ring
   strip.begin();
   strip.setBrightness(LED_BRIGHTNESS);
   strip.clear();
-  for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
+  for (int i = 0; i < 12; i++) {  
     strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
   }
   strip.show();  
 
   // Init Taster
-  pinMode(TASTER_PIN, INPUT_PULLDOWN);  // initialize the pushbutton pin as an input:
-
-
-  
-
-
-
-  // handleRoot(); //zeige Setup Seite, wenn du die IP Adresse im Browser eingibst (wird auch gezeigt, wenn der MC in den AP-Modus geht)
-
-
-
-
-
+  pinMode(TASTER_PIN, INPUT_PULLDOWN);
 
   Serial.println("Setup abgeschlossen."); 
-  
-  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void loop() {
   dnsServer.processNextRequest();                // @neu für Captive Portal

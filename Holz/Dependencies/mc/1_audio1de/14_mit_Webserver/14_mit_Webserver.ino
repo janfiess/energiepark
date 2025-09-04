@@ -1,13 +1,16 @@
 /*****************************************************************
- * Read PN532 sensor via I2C and publish to MQTT broker whether an RFID Tag is close to the reader or not.
- * In der Konsole wird nur geprintet, wann die "Session" (erkannt oder nicht erkannt) beginnt und wann sie endet.
- * Für etwas Toleranz wird der Wert mit den letzten Werten verglichen. Um Fehlimpulse zu vermeiden, wird die Konsole erst beschrieben,
- * sobald die aktuelle Messung mit den letzten paar Messungen übereinstimmt.
+ * Lese RFID / NFC Sensor (PN532) und teile TouchDesigner (über MQTT mit, ob ein Kopfhörer (mit RFID-Tags) in der Nähe ist
+ * Der Code benachrichtigt nur, wann die "Session" (erkannt oder nicht erkannt) beginnt und wann sie endet.
+ * Entprellung: Um Fehlimpulse zu vermeiden wird der Wert zunächst mit den letzten Werten verglichen. Wenn der Wert konstant bleibt, wird der Zustand als "geändert" anerkannt.
  * Wenn kein bekanntes Netzwerk gefunden wird, startet der ESP einen Access Point. Wenn man dieses WLAN Netzwerk am Computer / Smartphone auswählt,
- * kommt man per Captive WLAN auf eine Setup-Website. Dort können SSID und PW des WLAN-Netzwerks eingegeben werden, mit dem man sich verbinden mag.
+ * kommt man per Captive WLAN auf eine Setup-Website (ein DNS-Server leitet alle Domains auf die ESP-IP 192.168.4.1 um). 
+ * Dort können SSID und PW des WLAN-Netzwerks eingegeben werden, mit dem man sich verbinden mag.
+ * Diese Setup-Page ist auch ohne AP-Mode über die IP Adresse des ESP im Browser verfügbar.
+ * Die Daten aus dem Web-Formular werden im Flash Speicher des ESP gespeichert, damit er sich diese Info beim nächsten Start direkt abrufen kann 
+ * und sich z. B. ohne Nachfrage mit einem Netzwerk verbinden kann.
  *
  * Anschluss:
-
+ *
  * RFID/NFC: PN532, TOF: VL6180X ( * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C))
  * RFID/NFC bzw. TOF: SDA <-> ESP32-C6: GPIO 6
  * RFID/NFC bzw. TOF: SCL <-> ESP32-C6: GPIO 7
@@ -28,51 +31,40 @@
  * -  "MQTT" von Joel Gaehwiler
  * -  "Adafruit_NeoPixel" von Adafruit
  *
- *
- Mit diesem Code erzeugt der ESP einen Access Point namens "ESP32-Setup" ohne Passwort.
-Mit diesem Code kommt man direkt auf die Config-Website, ohne dass man die IP Adresse eintippen muss, wie im Hotel-WLAN ("Captive Portal").
-Dazu starten wir einen DNS-Server, der alle Domains auf die ESP-IP 192.168.4.1 umleitet.
-Auf der Setup-Website kann man dann wie gehabt Variablen im Code benennen, wie z. B. SSID und Passwort eines Netzwerks, mit dem sich der ESP verbinden soll. 
-Das wird dann im Flash Speicher des ESP gespeichert, damit er sich diese Info beim nächsten Start direkt abrufen kann 
-und sich z. B. ohne Nachfrage mit einem Netzwerk verbinden kann.
-
 ******************************************************************/
 
 
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Preferences.h>
-#include <DNSServer.h>                  // @neu für Captive Portal
-
+#include <DNSServer.h>                                                 // für Captive Portal ("Hotel-WLAN-Start-Screen")
 #include <MQTT.h>
-#include <Wire.h>                                                      // I2C
-// #include "Adafruit_VL6180X.h"
+#include <Wire.h>                                                      // I2C (so kommuniziert z. B. der NFC / RFID-Reader)
 #include <Adafruit_PN532.h>                                            // NFC Reader
 #include "esp_log.h"                                                   // nicht die Konsole voll schreiben, wenn es ab und zu einen I2C Nack gibt
-#include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h>                                         // LED-Ring
 
 
 Preferences preferences;
 String device_id = "";
 
-// Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
 
+// Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
 String targetSSID = "";                                                // "Energiepark Technik", "tinkergarden", "LinusFetzMusikGast"
 String targetPassword = "";                                            // "Energiepark2025.8", "strenggeheim", "linusfetzgast"
 WiFiClient wificlient;
 
-// Server für Setup-Page
 
+// Server für Setup-Page
 bool apMode = false;    
 WebServer server(80);                                                  // Lokaler Webserver auf Port 80, um Setup-Seite im Browser bereitzustellen
 DNSServer dnsServer;                                                   // für Captive Portal
 const byte DNS_PORT = 53;                                              // für Captive Portal.  // DNS-Server: Alle Anfragen -> ESP32
   
+
 // MQTT
-
-String mqtt_broker = "";                                               // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
+String mqtt_broker = "";                                                                           // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
-
 String MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio<device_id>de";                                // Topics.  -   Diese werden für Subscribing und Publishing genutzt
 String MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio<device_id>de/numsections";      // Payload: 0 - 12
 String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio<device_id>de/state";                 // message when audio track ended -> Payload: "leds_idle"
@@ -81,7 +73,6 @@ MQTTClient mqttclient;
 
 
 // I2C Pins definieren
-
 #define SDA_PIN 6
 #define SCL_PIN 7
 
@@ -92,11 +83,10 @@ MQTTClient mqttclient;
 #define PN532_RESET (3)
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);                     // Konstruktor mit IRQ, RESET und Wire
 
-// Ziel-UID definieren (7 Bytes)
-// const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 }; 
-String target_rfid_1 = "";          // 14AA77D6
-String target_rfid_2 = "";          // A44347D0
+String target_rfid_1 = "";                                             // z. B. 14AA77D6
+String target_rfid_2 = "";                                             // z. B. A44347D0
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
+
 
 // Statusvariablen für die verbesserte Erkennung                       // Merkt sich, ob der TARGET_UID-Tag aktuell als "anwesend" gilt // Wert ist bereits entprellt
 int nfc_presentConfirmCounter = 0;                                     // Zählt aufeinanderfolgende erfolgreiche Lesungen des TARGET_UID
@@ -116,7 +106,6 @@ bool nfc_isTargetTag;                                                  // handel
 #define NUM_PIXELS 12
 #define DELAYVAL 500
 #define LED_BRIGHTNESS 50
-
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 
@@ -138,12 +127,13 @@ void start_webserver();
 void start_access_point();
 void load_setup_data();                                  // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
 void mqtt_messageReceived(String& topic, String& payload);
+void send_website_save();
+void save_settings();
+void send_website_settings();
 void init_nfc();
 void read_nfc();
+void read_button();
 void init_led_ring();
-String htmlPage();
-void handleSave();
-void handleRoot();
 
 
 
@@ -172,9 +162,7 @@ void setup() {
   start_webserver();    // Webserver starten, unabhängig von STA oder AP
 
 
-
   // I2C
-
   esp_log_set_vprintf([](const char *fmt, va_list args) -> int {
     (void)fmt;   // ignore
     (void)args;  // ignore
@@ -184,27 +172,15 @@ void setup() {
   Wire.begin(SDA_PIN, SCL_PIN);   // Wire starten mit den benutzerdefinierten I2C Pins
   init_nfc();                     // NFC Sensor
 
-  // Init LED-Ring
 
+  // Init LED-Ring
   init_led_ring();
+
 
   // Init Taster
   pinMode(TASTER_PIN, INPUT_PULLDOWN);
-
   Serial.println("Setup abgeschlossen."); 
-
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -220,7 +196,7 @@ void loop() {
     delay(5000);
   }
   
-  // MQTT
+  // MQTT-Verbindung bei Verlust wiederherstellen
   if (!apMode) {
     mqttclient.loop();                                                    // MQTT Loop regelmässig aufrufen, um die Verbindung am Leben zu halten und Nachrichten zu empfangen  
     if (!mqttclient.connected()) {                                        // Überprüfen, ob die MQTT-Verbindung aktiv ist. Wenn nicht, versuchen wir uns neu zu verbinden.
@@ -229,23 +205,9 @@ void loop() {
     }
   }
 
-  // RFID
-  read_nfc();                                                            // get NFC "button" state
+  // RFID / NFC
+  read_nfc();                                                             // get NFC "button" state
 
-  // Alterative: Taster:
-  buttonState = digitalRead(TASTER_PIN);
-  if(buttonState != prev_buttonState) {
-    prev_buttonState = buttonState;
-    if (buttonState == 1) {
-      String publishPayload = "play";
-      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
-      if(mqttclient.connected()) {
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
-      }
-      strip.clear();
-      strip.show();  
-    }
-  }
 
   if(is_object_detected != prev_is_object_detected) {
     prev_is_object_detected = is_object_detected;
@@ -264,9 +226,13 @@ void loop() {
       }
     }
   }
+  
+  read_button();                                                          // Alterative: Taster statt RFID-Erkennung
 
   delay(100);                                                             // kurze Pause, entlastet den Prozessor
 }
+
+
 
 /****************************************************************************************************
  * WLAN-Verbindung herstellen   // wird in setup gerufen und wenn Verbindung verloren geht
@@ -296,12 +262,10 @@ void connectWiFi() {
 
 
 
-
 /****************************************************************************************************
  * Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
  ****************************************************************************************************/ 
   
-
 void load_setup_data(){
   preferences.begin("wifi", true);
   targetSSID = preferences.getString("ssid", "");
@@ -313,9 +277,6 @@ void load_setup_data(){
   preferences.end();
   Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
 }
-
-
-
 
 
 
@@ -348,11 +309,9 @@ void connectMQTT() {                                                      // Die
   mqttclient.subscribe(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE);
   Serial.printf("Abonniert Topic: %s\n", MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.c_str());  
   
-
   MQTT_PUBLISH_TOPIC_AUDIO.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
   
 }
-
 
 
 
@@ -396,9 +355,9 @@ void mqtt_messageReceived(String& topic, String& payload) {
  ****************************************************************************************************/ 
 
 void start_webserver(){
-  server.on("/", handleRoot);
-  server.on("/save", handleSave);
-  server.onNotFound(handleRoot);
+  server.on("/", send_website_settings);
+  server.on("/save", save_settings);
+  server.onNotFound(send_website_settings);
   server.begin();
 
   if (apMode) {
@@ -407,6 +366,7 @@ void start_webserver(){
     Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
   }
 }
+
 
 
 /****************************************************************************************************
@@ -429,98 +389,13 @@ void start_access_point(){
 
 
 
-/******************
- * NFC-Funktionen
- ******************/
+/*********************************************************************
+ * Websites
+ *********************************************************************/
 
-void init_nfc(){                                                          // wird in start() aufgerufen
-  // Wir nutzen die I2C-Konfiguration, die in Wire.begin() gestartet wird.
-  // Daher ist ein nfc.begin() hier ausreichend, um die Kommunikation zu starten.
-  nfc.begin();                                                          // NFC Reader PN532 starten
-  uint32_t nfc_versiondata = nfc.getFirmwareVersion();                  // Firmware-Version abfragen
-  if (!nfc_versiondata) {
-    Serial.println("Kein PN532 gefunden – Verbindung prüfen.");
-    while (1);                                                          // bleibt hängen, wenn nichts gefunden wird
-  }
+// "/" → wenn die IP Adresse des ESP im Browser aufgerufen wird bzw im AP Modus: wenn 192.168.4.1 aufgerufen wird: Formular anzeigen 
+void send_website_settings() {                                          // aufgerufen in start_webserver()
 
-  // Konfiguriere das Modul für RFID-Lesen
-  nfc.SAMConfig();
-  Serial.println("Found chip RFID/NFC Reader. Warte auf Tag...");
-}
-
-void read_nfc(){
-  // NFC
-  nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
-  nfc_isTargetTag = false;  
-
-  String current_NFC_string = "";
-
-  if (nfc_tag_erkannt) {  
-    // UID in Hex-String konvertieren
-    char nfc_payload[3 * sizeof(nfc_uid) + 1]; 
-    nfc_payload[0] = '\0'; 
-
-    for (uint8_t i = 0; i < nfc_uidLength; i++) {
-      char byteStr[4];
-      sprintf(byteStr, "%02X", nfc_uid[i]);      
-      strcat(nfc_payload, byteStr);              
-    }
-    current_NFC_string = nfc_payload; 
-    // Serial.println(current_NFC_string);
-
-    if(current_NFC_string == target_rfid_1 || current_NFC_string == target_rfid_2 ){
-      nfc_isTargetTag = true;
-      // Serial.println("der gezeigte ID ist der Gesuchte");
-    }
-  }
-
-  // --- Logik für die Bestätigung von Anwesenheit/Abwesenheit ---
-  if (nfc_isTargetTag) {
-    nfc_absentConfirmCounter = 0;                                        // Reset des Abwesenheitszählers
-    nfc_presentConfirmCounter++;                                         // Inkrementiere Anwesenheitszähler
-
-    if (nfc_presentConfirmCounter >= NFC_CONFIRM_PRESENT_THRESHOLD) {    // Wenn der Tag oft genug hintereinander bestätigt wurde   
-      nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;         // Zähler auf Max setzen, um Überlauf zu vermeiden
-      if (!is_object_detected) {  
-        Serial.printf("Ziel-Tag erkannt: %s\n", current_NFC_string);              // current_NFC_string == target_id 
-        is_object_detected = true; // Status auf "anwesend" setzen
-      }
-    }
-  } else {                                                                // Wenn der Ziel-Tag NICHT gelesen wurde (entweder kein Tag oder falscher Tag)
-    nfc_presentConfirmCounter = 0;                                        // Reset des Anwesenheitszählers
-    nfc_absentConfirmCounter++;                                           // Inkrementiere Abwesenheitszähler
-
-    if (nfc_absentConfirmCounter >= NFC_CONFIRM_ABSENT_THRESHOLD) {
-      nfc_absentConfirmCounter = NFC_CONFIRM_ABSENT_THRESHOLD;            // Wenn der Tag oft genug hintereinander NICHT gelesen wurde -> Zähler auf Max setzen
-      if (is_object_detected) {                                      // Wenn der Tag vorher als anwesend galt, jetzt aber nicht mehr      
-        Serial.println("Ziel-Tag entfernt (entprellt).");
-        is_object_detected = false;                                  // Status auf "nicht anwesend" setzen
-      }
-    }
-  }
-}
-
-
-/****************************************************************************************************
- * LED-Ring
- ****************************************************************************************************/ 
-
-void init_led_ring(){
-  strip.begin();
-  strip.setBrightness(LED_BRIGHTNESS);
-  strip.clear();
-  for (int i = 0; i < 12; i++) {  
-    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
-  }
-  strip.show();  
-}
-
-
-/***********************
- * Webserver-Funktionen
- ***********************/
-
-String htmlPage() {
   String page = "<!DOCTYPE html><html><head><meta charset='utf-8'>";
   page += "<title>Setup Kopfhörer-Station</title></head><body>";
   page += "<h2>Setup Kopfhörer-Station</h2>";
@@ -534,16 +409,27 @@ String htmlPage() {
   page += "<input type='submit' value='Speichern & Verbinden'>";
   page += "</form>";
   page += "</body></html>";
-  return page;
+
+  server.send(200, "text/html", page);
 }
 
-// "/" → wenn 192.168.4.1 aufgerufen wird: Formular anzeigen (diese Funktion ist in setup() hinterlegt)
-void handleRoot() {
-  server.send(200, "text/html", htmlPage());
+
+void send_website_save() {
+
+  String page = "<!DOCTYPE html><html><body>";
+  page += "<h2>Daten gespeichert!</h2>";
+  page += "<p>SSID: '" + targetSSID + "'</p>";
+  page += "<p>Passwort: '" + targetPassword + "'</p>";
+  page += "<p>ESP versucht, sich zu verbinden...</p>";
+  page += "</body></html>";
+  
+  server.send(200, "text/html", page);
 }
 
-// "/save" → wenn 192.168.4.1/save aufgerufen wurd, also wenn Formular abgeschickt wurde: Daten speichern und WLAN verbinden (dieser Funktionsaufruf ist in setup() hinterlegt)
-void handleSave() {
+
+
+// "/save" → wenn <IP-Adresse>/save bzw bei AP-Mode 192.168.4.1/save aufgerufen wurd, also wenn Formular abgeschickt wurde: Daten speichern und WLAN verbinden (dieser Funktionsaufruf ist in setup() hinterlegt)
+void save_settings() {                                            // aufgerufen in start_webserver()
   if (server.method() == HTTP_POST) {
     if (server.hasArg("ssid")){
       targetSSID = server.arg("ssid");
@@ -581,17 +467,119 @@ void handleSave() {
     preferences.end();
 
     // Rückmeldung
-    String response = "<!DOCTYPE html><html><body>";
-    response += "<h2>Daten gespeichert!</h2>";
-    response += "<p>SSID: '" + targetSSID + "'</p>";
-    response += "<p>Passwort: '" + targetPassword + "'</p>";
-    response += "<p>ESP versucht, sich zu verbinden...</p>";
-    response += "</body></html>";
-
-    server.send(200, "text/html", response);
+    send_website_save();
 
     // WLAN Verbindung starten
     delay(1000);
     connectWiFi();
   }
 }
+
+
+
+/**************************************************************************************************************
+ * NFC-Funktionen
+ **************************************************************************************************************/
+
+void init_nfc(){                                                        // wird in start() aufgerufen
+  // Wir nutzen die I2C-Konfiguration, die in Wire.begin() gestartet wird. Daher ist ein nfc.begin() hier ausreichend, um die Kommunikation zu starten.
+  nfc.begin();                                                          // NFC Reader PN532 starten
+  uint32_t nfc_versiondata = nfc.getFirmwareVersion();                  // Firmware-Version abfragen
+  if (!nfc_versiondata) {
+    Serial.println("Kein PN532 gefunden – Verbindung prüfen.");
+    while (1);                                                          // bleibt hängen, wenn nichts gefunden wird
+  }
+
+  nfc.SAMConfig();                                                      // Konfiguriere das Modul für RFID-Lesen
+  Serial.println("Found chip RFID/NFC Reader. Warte auf Tag...");
+}
+
+
+
+void read_nfc(){
+  nfc_tag_erkannt = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, nfc_uid, &nfc_uidLength, 100);   // Versuche für 100ms, einen Tag zu erkennen. Der Timeout sollte nicht zu kurz sein, da der PN532 Zeit benötigt..
+  nfc_isTargetTag = false;  
+
+  String current_NFC_string = "";
+
+  if (nfc_tag_erkannt) {  
+    // UID in Hex-String konvertieren
+    char nfc_payload[3 * sizeof(nfc_uid) + 1]; 
+    nfc_payload[0] = '\0'; 
+
+    for (uint8_t i = 0; i < nfc_uidLength; i++) {
+      char byteStr[4];
+      sprintf(byteStr, "%02X", nfc_uid[i]);      
+      strcat(nfc_payload, byteStr);              
+    }
+    current_NFC_string = nfc_payload; 
+    // Serial.println(current_NFC_string);
+
+    if(current_NFC_string == target_rfid_1 || current_NFC_string == target_rfid_2 ){
+      nfc_isTargetTag = true;
+      // Serial.println("der gezeigte ID ist der Gesuchte");
+    }
+  }
+
+  // Logik für die Bestätigung von Anwesenheit/Abwesenheit
+  if (nfc_isTargetTag) {
+    nfc_absentConfirmCounter = 0;                                         // Reset des Abwesenheitszählers
+    nfc_presentConfirmCounter++;                                          // Inkrementiere Anwesenheitszähler
+
+    if (nfc_presentConfirmCounter >= NFC_CONFIRM_PRESENT_THRESHOLD) {     // Wenn der Tag oft genug hintereinander bestätigt wurde   
+      nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;          // Zähler auf Max setzen, um Überlauf zu vermeiden
+      if (!is_object_detected) {  
+        Serial.printf("Ziel-Tag erkannt: %s\n", current_NFC_string);      // current_NFC_string == target_id 
+        is_object_detected = true; // Status auf "anwesend" setzen
+      }
+    }
+  } else {                                                                // Wenn der Ziel-Tag NICHT gelesen wurde (entweder kein Tag oder falscher Tag)
+    nfc_presentConfirmCounter = 0;                                        // Reset des Anwesenheitszählers
+    nfc_absentConfirmCounter++;                                           // Inkrementiere Abwesenheitszähler
+
+    if (nfc_absentConfirmCounter >= NFC_CONFIRM_ABSENT_THRESHOLD) {
+      nfc_absentConfirmCounter = NFC_CONFIRM_ABSENT_THRESHOLD;            // Wenn der Tag oft genug hintereinander NICHT gelesen wurde -> Zähler auf Max setzen
+      if (is_object_detected) {                                           // Wenn der Tag vorher als anwesend galt, jetzt aber nicht mehr      
+        Serial.println("Ziel-Tag entfernt (entprellt).");
+        is_object_detected = false;                                       // Status auf "nicht anwesend" setzen
+      }
+    }
+  }
+}
+
+
+
+/****************************************************************************************************
+ * Taster lesen
+ ****************************************************************************************************/ 
+
+void read_button(){
+  buttonState = digitalRead(TASTER_PIN);
+  if(buttonState != prev_buttonState) {
+    prev_buttonState = buttonState;
+    if (buttonState == 1) {
+      String publishPayload = "play";
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
+      if(mqttclient.connected()) {
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
+      }
+    }
+  }
+}
+
+
+/****************************************************************************************************
+ * LED-Ring
+ ****************************************************************************************************/ 
+
+void init_led_ring(){
+  strip.begin();
+  strip.setBrightness(LED_BRIGHTNESS);
+  strip.clear();
+  for (int i = 0; i < 12; i++) {  
+    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
+  }
+  strip.show();  
+}
+
+

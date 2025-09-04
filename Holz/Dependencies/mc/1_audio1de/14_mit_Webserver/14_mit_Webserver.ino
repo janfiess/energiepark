@@ -56,29 +56,32 @@ Preferences preferences;
 String device_id = "";
 
 // Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
-String targetSSID = "";                 // "Energiepark Technik", "tinkergarden", "LinusFetzMusikGast"
-String targetPassword = "";             // "Energiepark2025.8", "strenggeheim", "linusfetzgast"
+
+String targetSSID = "";                                                // "Energiepark Technik", "tinkergarden", "LinusFetzMusikGast"
+String targetPassword = "";                                            // "Energiepark2025.8", "strenggeheim", "linusfetzgast"
 WiFiClient wificlient;
 
-bool apMode = false;
+// Server für Setup-Page
 
-// Lokaler Webserver auf Port 80
-WebServer server(80);
-DNSServer dnsServer;                    // @neu für Captive Portal
-const byte DNS_PORT = 53;               // @neu für Captive Portal.  // DNS-Server: Alle Anfragen -> ESP32
-
+bool apMode = false;    
+WebServer server(80);                                                  // Lokaler Webserver auf Port 80, um Setup-Seite im Browser bereitzustellen
+DNSServer dnsServer;                                                   // für Captive Portal
+const byte DNS_PORT = 53;                                              // für Captive Portal.  // DNS-Server: Alle Anfragen -> ESP32
+  
 // MQTT
-String mqtt_broker = "";                            // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
+
+String mqtt_broker = "";                                               // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
-String MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio<device_id>de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
+String MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio<device_id>de";                                // Topics.  -   Diese werden für Subscribing und Publishing genutzt
 String MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio<device_id>de/numsections";      // Payload: 0 - 12
-String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio<device_id>de/state";                 // message when audio track ended -> Payload: "ended"
-String subscribe_topics[10];         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
+String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio<device_id>de/state";                 // message when audio track ended -> Payload: "leds_idle"
+String subscribe_topics[10];                                                                       // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
 MQTTClient mqttclient;
 
 
 // I2C Pins definieren
+
 #define SDA_PIN 6
 #define SCL_PIN 7
 
@@ -87,18 +90,15 @@ MQTTClient mqttclient;
 // IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)
-
-// Konstruktor mit IRQ, RESET und Wire
-Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
+Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);                     // Konstruktor mit IRQ, RESET und Wire
 
 // Ziel-UID definieren (7 Bytes)
-// const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
+// const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 }; 
 String target_rfid_1 = "";          // 14AA77D6
 String target_rfid_2 = "";          // A44347D0
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
-// --- Statusvariablen für die verbesserte Erkennung ---
-// bool nfc_tagCurrentlyPresent = false;                                  // Merkt sich, ob der TARGET_UID-Tag aktuell als "anwesend" gilt // Wert ist bereits entprellt
+// Statusvariablen für die verbesserte Erkennung                       // Merkt sich, ob der TARGET_UID-Tag aktuell als "anwesend" gilt // Wert ist bereits entprellt
 int nfc_presentConfirmCounter = 0;                                     // Zählt aufeinanderfolgende erfolgreiche Lesungen des TARGET_UID
 int nfc_absentConfirmCounter = 0;                                      // Zählt aufeinanderfolgende fehlgeschlagene Lesungen (Tag nicht da)
 
@@ -134,10 +134,13 @@ bool prev_is_object_detected;
 // Funktionsprototypen
 void connectWiFi();
 void connectMQTT();
+void start_webserver();
+void start_access_point();
+void load_setup_data();                                  // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
 void mqtt_messageReceived(String& topic, String& payload);
 void init_nfc();
 void read_nfc();
-
+void init_led_ring();
 String htmlPage();
 void handleSave();
 void handleRoot();
@@ -156,76 +159,22 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("Kopfhörer-Station startet...");
+  load_setup_data();    // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
+  connectWiFi();
 
-  // Gespeicherte WLAN-Daten laden, falls bereits per Setup-Seite festgelegt
-  preferences.begin("wifi", true);
-  targetSSID = preferences.getString("ssid", "");
-  targetPassword = preferences.getString("password", "").c_str();
-  mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
-  target_rfid_1 = preferences.getString("target_rfid_1", "");
-  target_rfid_2 = preferences.getString("target_rfid_2", "");
-  device_id = preferences.getString("device_id", "9");
-  preferences.end();
-  Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", 
-                targetSSID.c_str(), targetPassword.c_str());
-
-  // Versuche, mit den gespeicherten Daten zu verbinden
-  if (targetSSID != "") {
-    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: '%s' (PW: '%s')\n", 
-                  targetSSID.c_str(), targetPassword.c_str());
-    WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
-    unsigned long startAttemptTime = millis();
-
-    // Versuche 10 Sekunden lang
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println();
-  }
-
-  // Überprüfe den WLAN-Status und handle entsprechend
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", 
-                  targetSSID.c_str(), WiFi.localIP().toString().c_str());
-    apMode = false;
-
-
-    // --- MQTT Client initialisieren und Callback setzen ---
-
+  if (WiFi.status() == WL_CONNECTED) {             // MQTT Client initialisieren und Callback setzen 
     mqttclient.begin(mqtt_broker.c_str(), wificlient);
     connectMQTT();
     mqttclient.onMessage(mqtt_messageReceived);
+  } 
+  else start_access_point();                       // Falls keine Verbindung zu einem gespeicherten Netzwerk zustande kommt, starte den Access Point
+    
+  start_webserver();    // Webserver starten, unabhängig von STA oder AP
 
-  } else {
-    // Falls keine Verbindung zustande kommt, starte den Access Point
-    Serial.println("Keine Verbindung, starte Access Point...");
 
-    WiFi.softAP("Headphone Setup");  // offen, ohne Passwort
-
-    IPAddress apIP = WiFi.softAPIP();
-    Serial.print("AP gestartet, IP: ");
-    Serial.println(apIP);
-
-    // DNS-Server: Alle Domains -> ESP
-    dnsServer.start(DNS_PORT, "*", apIP);
-
-    apMode = true;   // wir sind im AP-Modus
-  }
-
-  // --- EINMALIG: Webserver starten, unabhängig von STA oder AP ---
-  server.on("/", handleRoot);
-  server.on("/save", handleSave);
-  server.onNotFound(handleRoot);
-  server.begin();
-
-  if (apMode) {
-    Serial.println("Webserver + DNS gestartet (Captive Portal aktiv)");
-  } else {
-    Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
-  }
 
   // I2C
+
   esp_log_set_vprintf([](const char *fmt, va_list args) -> int {
     (void)fmt;   // ignore
     (void)args;  // ignore
@@ -236,13 +185,8 @@ void setup() {
   init_nfc();                     // NFC Sensor
 
   // Init LED-Ring
-  strip.begin();
-  strip.setBrightness(LED_BRIGHTNESS);
-  strip.clear();
-  for (int i = 0; i < 12; i++) {  
-    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
-  }
-  strip.show();  
+
+  init_led_ring();
 
   // Init Taster
   pinMode(TASTER_PIN, INPUT_PULLDOWN);
@@ -273,7 +217,7 @@ void loop() {
   if (!apMode && targetSSID != "" && WiFi.status() != WL_CONNECTED) {
     Serial.println("Versuche Verbindung mit gespeicherten Daten...");
     connectWiFi();
-    delay(10000);
+    delay(5000);
   }
   
   // MQTT
@@ -324,21 +268,61 @@ void loop() {
   delay(100);                                                             // kurze Pause, entlastet den Prozessor
 }
 
-/********************
- * WLAN-Funktionen
- ********************/
+/****************************************************************************************************
+ * WLAN-Verbindung herstellen   // wird in setup gerufen und wenn Verbindung verloren geht
+ ****************************************************************************************************/ 
+
 void connectWiFi() {
-  // Diese Funktion wurde geleert, da die Verbindungslogik jetzt in setup() behandelt wird.
-  // Es ist besser, die Verbindung nur einmal im setup() zu versuchen. Wenn sie verloren geht,
-  // wird in der loop() der Reconnect-Mechanismus ausgelöst.
+  // Versuche, mit den gespeicherten Daten zu verbinden
+  if (targetSSID != "") {
+    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: '%s' (PW: '%s')\n", targetSSID.c_str(), targetPassword.c_str());
+    WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
+    unsigned long startAttemptTime = millis();
+
+    // Versuche 10 Sekunden lang
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println();
+  }
+
+  // Überprüfe den WLAN-Status und handle entsprechend
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str());
+    apMode = false;
+  }
 }
 
 
 
 
-/********************
- * MQTT-Funktionen
- ********************/
+/****************************************************************************************************
+ * Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
+ ****************************************************************************************************/ 
+  
+
+void load_setup_data(){
+  preferences.begin("wifi", true);
+  targetSSID = preferences.getString("ssid", "");
+  targetPassword = preferences.getString("password", "").c_str();
+  mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
+  target_rfid_1 = preferences.getString("target_rfid_1", "");
+  target_rfid_2 = preferences.getString("target_rfid_2", "");
+  device_id = preferences.getString("device_id", "9");
+  preferences.end();
+  Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
+}
+
+
+
+
+
+
+/****************************************************************************************************
+ * MQTT-Verbindung herstellen
+ ****************************************************************************************************/ 
+
 void connectMQTT() {                                                      // Diese Funktion kümmert sich nur noch um den eigentlichen Verbindungsaufbau und das Abonnement.
   Serial.printf("Verbinde mit MQTT Broker: %s\n", mqtt_broker);
   int attempts = 0;
@@ -375,10 +359,10 @@ void connectMQTT() {                                                      // Die
 /****************************************
  * MQTT Callback für eingehende Nachrichten
  ****************************************/
+
 void mqtt_messageReceived(String& topic, String& payload) {
   Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
 
-  // MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING)) {
     int numLedsToLight = payload.toInt();
     // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
@@ -395,7 +379,7 @@ void mqtt_messageReceived(String& topic, String& payload) {
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE)) {
     Serial.printf("Empfangen: %s \n", payload);                // %d für Integer
 
-    if(payload == "ended"){
+    if(payload == "leds_idle"){
       strip.clear();
       for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
         strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
@@ -405,9 +389,50 @@ void mqtt_messageReceived(String& topic, String& payload) {
   }
 }
 
+
+
+/****************************************************************************************************
+ * Webserver starten, unabhängig von STA oder AP
+ ****************************************************************************************************/ 
+
+void start_webserver(){
+  server.on("/", handleRoot);
+  server.on("/save", handleSave);
+  server.onNotFound(handleRoot);
+  server.begin();
+
+  if (apMode) {
+    Serial.println("Webserver + DNS gestartet (Captive Portal aktiv)");
+  } else {
+    Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
+  }
+}
+
+
+/****************************************************************************************************
+ * Access Point (AP) starten, falls sich der ESP mit keinem WLAN Netzwerk verbinden kann
+ ****************************************************************************************************/ 
+
+void start_access_point(){
+  Serial.println("Keine Verbindung, starte Access Point...");
+  WiFi.softAP("Headphone Setup");  // offen, ohne Passwort
+
+  IPAddress apIP = WiFi.softAPIP();
+  Serial.print("AP gestartet, IP: ");
+  Serial.println(apIP);
+
+  // DNS-Server: Alle Domains -> ESP
+  dnsServer.start(DNS_PORT, "*", apIP);
+
+  apMode = true;   // wir sind im AP-Modus
+}
+
+
+
 /******************
  * NFC-Funktionen
  ******************/
+
 void init_nfc(){                                                          // wird in start() aufgerufen
   // Wir nutzen die I2C-Konfiguration, die in Wire.begin() gestartet wird.
   // Daher ist ein nfc.begin() hier ausreichend, um die Kommunikation zu starten.
@@ -475,13 +500,30 @@ void read_nfc(){
   }
 }
 
+
+/****************************************************************************************************
+ * LED-Ring
+ ****************************************************************************************************/ 
+
+void init_led_ring(){
+  strip.begin();
+  strip.setBrightness(LED_BRIGHTNESS);
+  strip.clear();
+  for (int i = 0; i < 12; i++) {  
+    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
+  }
+  strip.show();  
+}
+
+
 /***********************
  * Webserver-Funktionen
  ***********************/
+
 String htmlPage() {
   String page = "<!DOCTYPE html><html><head><meta charset='utf-8'>";
-  page += "<title>ESP32-C6 Setup</title></head><body>";
-  page += "<h2>WLAN Einstellungen</h2>";
+  page += "<title>Setup Kopfhörer-Station</title></head><body>";
+  page += "<h2>Setup Kopfhörer-Station</h2>";
   page += "<form action='/save' method='POST'>";
   page += "SSID: <input type='text' name='ssid' value='" + targetSSID + "'><br><br>";
   page += "Passwort: <input type='password' name='password' value='" + targetPassword + "'><br><br>";
@@ -550,21 +592,6 @@ void handleSave() {
 
     // WLAN Verbindung starten
     delay(1000);
-    WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
-
-    unsigned long startAttemptTime = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-      delay(500);
-      Serial.print(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println();
-      Serial.println("Direkt nach Setup verbunden!");
-      Serial.printf("Erfolgreich verbunden: SSID: %s, IP-Adresse: %s \n", targetSSID.c_str(), WiFi.localIP().toString().c_str() );
-    } else {
-      Serial.println();
-      Serial.println("Konnte sich nach Speichern nicht sofort verbinden.");
-    }
+    connectWiFi();
   }
 }

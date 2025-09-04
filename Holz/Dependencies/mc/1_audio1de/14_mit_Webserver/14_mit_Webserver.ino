@@ -1,14 +1,14 @@
 /*****************************************************************
- * Beispiel: WLAN + MQTT + TOF-Schalter: Publish / Receive
- * Read PN532 sensor via I2C and publish to MQTT broker whether an object is close to the Reader or not.
- * In der Konsole wird nur geprintet, wann die "Session" beginnt und wann sie endet.
- * Für etwas Toleranz wird der Wert mit den letzten Werten verglichen. Um Fehlimpulse zu vermeiden, wird die Console erst beschrieben,
+ * Read PN532 sensor via I2C and publish to MQTT broker whether an RFID Tag is close to the reader or not.
+ * In der Konsole wird nur geprintet, wann die "Session" (erkannt oder nicht erkannt) beginnt und wann sie endet.
+ * Für etwas Toleranz wird der Wert mit den letzten Werten verglichen. Um Fehlimpulse zu vermeiden, wird die Konsole erst beschrieben,
  * sobald die aktuelle Messung mit den letzten paar Messungen übereinstimmt.
+ * Wenn kein bekanntes Netzwerk gefunden wird, startet der ESP einen Access Point. Wenn man dieses WLAN Netzwerk am Computer / Smartphone auswählt,
+ * kommt man per Captive WLAN auf eine Setup-Website. Dort können SSID und PW des WLAN-Netzwerks eingegeben werden, mit dem man sich verbinden mag.
  *
- * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C)
  * Anschluss:
 
- * RFID/NFC: PN532, TOF: VL6180X
+ * RFID/NFC: PN532, TOF: VL6180X ( * turn on I2C mode by switching physical switches on the PN532 to 1 / 0 (I2C))
  * RFID/NFC bzw. TOF: SDA <-> ESP32-C6: GPIO 6
  * RFID/NFC bzw. TOF: SCL <-> ESP32-C6: GPIO 7
  * RFID/NFC bzw. TOF: Vcc <-> ESP32-C6: 3.3V
@@ -48,11 +48,12 @@ und sich z. B. ohne Nachfrage mit einem Netzwerk verbinden kann.
 #include <Wire.h>                                                      // I2C
 // #include "Adafruit_VL6180X.h"
 #include <Adafruit_PN532.h>                                            // NFC Reader
-#include "esp_log.h" 
+#include "esp_log.h"                                                   // nicht die Konsole voll schreiben, wenn es ab und zu einen I2C Nack gibt
 #include <Adafruit_NeoPixel.h>
 
 
 Preferences preferences;
+String device_id = "";
 
 // Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
 String targetSSID = "";                 // "Energiepark Technik", "tinkergarden", "LinusFetzMusikGast"
@@ -67,7 +68,7 @@ DNSServer dnsServer;                    // @neu für Captive Portal
 const byte DNS_PORT = 53;               // @neu für Captive Portal.  // DNS-Server: Alle Anfragen -> ESP32
 
 // MQTT
-const char* mqtt_broker = "192.168.0.60";                            // "broker.emqx.io", "192.168.0.80", "test.mosquitto.org", "broker.hivemq.com"
+String mqtt_broker = "";                            // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
 const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
@@ -92,8 +93,8 @@ Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);
 
 // Ziel-UID definieren (7 Bytes)
 // const uint8_t TARGET_UID[] = { 0xFF, 0x0F, 0x17, 0xE9, 0x3F, 0x00, 0x00 };
-String target_id_1 = "14AA77D6";
-String target_id_2 = "A44347D0";
+String target_rfid_1 = "";          // 14AA77D6
+String target_rfid_2 = "";          // A44347D0
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
 // --- Statusvariablen für die verbesserte Erkennung ---
@@ -142,27 +143,32 @@ void handleSave();
 void handleRoot();
 
 
+
+
+
+
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("Kopfhörer-Station startet...");
 
 
-
-
-
-
-
   // Gespeicherte WLAN-Daten laden, falls bereits per Setup-Seite festgelegt
   preferences.begin("wifi", true);
   targetSSID = preferences.getString("ssid", "");
-  targetPassword = preferences.getString("password", "");
+  targetPassword = preferences.getString("password", "").c_str();
+  mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
+  target_rfid_1 = preferences.getString("target_rfid_1", "");
+  target_rfid_2 = preferences.getString("target_rfid_2", "");
+  device_id = preferences.getString("device_id", "");
   preferences.end();
   Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
 
+
   // Versuche, mit den gespeicherten Daten zu verbinden
   if (targetSSID != "") {
-    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: %s\n", targetSSID.c_str());
+    Serial.printf("Versuche Verbindung mit gespeichertem WLAN: '%s' (PW: '%s')\n", targetSSID.c_str(), targetPassword.c_str());
     WiFi.begin(targetSSID.c_str(), targetPassword.c_str());
     unsigned long startAttemptTime = millis();
 
@@ -180,9 +186,18 @@ void setup() {
     apMode = false;
 
     // --- MQTT Client initialisieren und Callback setzen ---
-    mqttclient.begin(mqtt_broker, wificlient);
+    mqttclient.begin(mqtt_broker.c_str(), wificlient);
     mqttclient.onMessage(mqtt_messageReceived);
     connectMQTT();
+
+    // --- NEU: Webserver auch im STA-Modus aktivieren ---
+    server.on("/", handleRoot);
+    server.on("/save", handleSave);
+    server.onNotFound(handleRoot);
+    server.begin();
+    Serial.println("Webserver gestartet (STA-Modus, erreichbar über lokale IP)");
+
+
   } else {
     // Falls keine Verbindung zustande kommt, starte den Access Point
     Serial.println("Keine Verbindung, starte Access Point...");
@@ -232,6 +247,15 @@ void setup() {
 
   // Init Taster
   pinMode(TASTER_PIN, INPUT_PULLDOWN);  // initialize the pushbutton pin as an input:
+
+
+  
+
+
+
+  // handleRoot(); //zeige Setup Seite, wenn du die IP Adresse im Browser eingibst (wird auch gezeigt, wenn der MC in den AP-Modus geht)
+
+
 
 
 
@@ -408,7 +432,7 @@ void read_nfc(){
     current_NFC_string = nfc_payload; 
     // Serial.println(current_NFC_string);
 
-    if(current_NFC_string == target_id_1 || current_NFC_string == target_id_2 ){
+    if(current_NFC_string == target_rfid_1 || current_NFC_string == target_rfid_2 ){
       nfc_isTargetTag = true;
       // Serial.println("der gezeigte ID ist der Gesuchte");
     }
@@ -450,6 +474,10 @@ String htmlPage() {
   page += "<form action='/save' method='POST'>";
   page += "SSID: <input type='text' name='ssid' value='" + targetSSID + "'><br><br>";
   page += "Passwort: <input type='password' name='password' value='" + targetPassword + "'><br><br>";
+  page += "Device ID: <input type='text' name='device_id' value='" + device_id + "'><br><br>";
+  page += "MQTT Broker IP-Adresse: <input type='text' name='mqtt_broker' value='" + mqtt_broker + "'><br><br>";
+  page += "RFID-Tag 1: <input type='text' name='target_rfid_1' value='" + target_rfid_1 + "'><br><br>";
+  page += "RFID-Tag 2: <input type='text' name='target_rfid_2' value='" + target_rfid_2 + "'><br><br>";
   page += "<input type='submit' value='Speichern & Verbinden'>";
   page += "</form>";
   page += "</body></html>";
@@ -464,26 +492,46 @@ void handleRoot() {
 // "/save" → wenn 192.168.4.1/save aufgerufen wurd, also wenn Formular abgeschickt wurde: Daten speichern und WLAN verbinden (dieser Funktionsaufruf ist in setup() hinterlegt)
 void handleSave() {
   if (server.method() == HTTP_POST) {
-    if (server.hasArg("ssid")) {
+    if (server.hasArg("ssid")){
       targetSSID = server.arg("ssid");
       targetSSID.trim();      // Führende und nachfolgende Leerzeichen entfernen, um Verbindungsfehler zu vermeiden
     }
-    if (server.hasArg("password")) {
+    if (server.hasArg("password")){
       targetPassword = server.arg("password");
       targetPassword.trim();
+    }
+    if (server.hasArg("device_id")){
+      device_id = server.arg("device_id");
+      device_id.trim();
+    }
+    if (server.hasArg("mqtt_broker")) {
+      mqtt_broker = server.arg("mqtt_broker");
+      mqtt_broker.trim();
+    }
+    if (server.hasArg("target_rfid_1")){
+      target_rfid_1 = server.arg("target_rfid_1");
+      target_rfid_1.trim();
+    }
+    if (server.hasArg("target_rfid_2")){
+      target_rfid_2 = server.arg("target_rfid_2");
+      target_rfid_2.trim();
     }
 
     // Im Flash speichern
     preferences.begin("wifi", false);
     preferences.putString("ssid", targetSSID);
     preferences.putString("password", targetPassword);
+    preferences.putString("device_id", device_id);
+    preferences.putString("mqtt_broker", mqtt_broker);
+    preferences.putString("target_rfid_1", target_rfid_1);
+    preferences.putString("target_rfid_2", target_rfid_2);
     preferences.end();
 
     // Rückmeldung
     String response = "<!DOCTYPE html><html><body>";
     response += "<h2>Daten gespeichert!</h2>";
-    response += "<p>SSID: " + targetSSID + "</p>";
-    response += "<p>Passwort: (versteckt)</p>";
+    response += "<p>SSID: '" + targetSSID + "'</p>";
+    response += "<p>Passwort: '" + targetPassword + "'</p>";
     response += "<p>ESP versucht, sich zu verbinden...</p>";
     response += "</body></html>";
 

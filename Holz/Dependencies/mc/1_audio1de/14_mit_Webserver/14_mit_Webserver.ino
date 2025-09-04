@@ -71,10 +71,10 @@ const byte DNS_PORT = 53;               // @neu für Captive Portal.  // DNS-Ser
 String mqtt_broker = "";                            // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
 const char* mqtt_client_id = "headphone_station_audio1de";
 
-const char* MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio1de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
-const char* MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio1de/numsections";      // Payload: 0 - 12
-const char* MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio1de/state"; 
-const char* subscribe_topics[] = { MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING, MQTT_SUBSCRIBE_TOPIC_TRACK_STATE};         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
+String MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio<device_id>de";                    // Topics.  -   Diese werden für Subscribing und Publishing genutzt
+String MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio<device_id>de/numsections";      // Payload: 0 - 12
+String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio<device_id>de/state";                 // message when audio track ended -> Payload: "ended"
+String subscribe_topics[10];         // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
 MQTTClient mqttclient;
 
 
@@ -164,7 +164,7 @@ void setup() {
   mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
   target_rfid_1 = preferences.getString("target_rfid_1", "");
   target_rfid_2 = preferences.getString("target_rfid_2", "");
-  device_id = preferences.getString("device_id", "");
+  device_id = preferences.getString("device_id", "9");
   preferences.end();
   Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", 
                 targetSSID.c_str(), targetPassword.c_str());
@@ -190,16 +190,18 @@ void setup() {
                   targetSSID.c_str(), WiFi.localIP().toString().c_str());
     apMode = false;
 
+
     // --- MQTT Client initialisieren und Callback setzen ---
+
     mqttclient.begin(mqtt_broker.c_str(), wificlient);
-    mqttclient.onMessage(mqtt_messageReceived);
     connectMQTT();
+    mqttclient.onMessage(mqtt_messageReceived);
 
   } else {
     // Falls keine Verbindung zustande kommt, starte den Access Point
     Serial.println("Keine Verbindung, starte Access Point...");
 
-    WiFi.softAP("ESP32-Setupp");  // offen, ohne Passwort
+    WiFi.softAP("Headphone Setup");  // offen, ohne Passwort
 
     IPAddress apIP = WiFi.softAPIP();
     Serial.print("AP gestartet, IP: ");
@@ -238,7 +240,7 @@ void setup() {
   strip.setBrightness(LED_BRIGHTNESS);
   strip.clear();
   for (int i = 0; i < 12; i++) {  
-    strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
+    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
   }
   strip.show();  
 
@@ -246,6 +248,7 @@ void setup() {
   pinMode(TASTER_PIN, INPUT_PULLDOWN);
 
   Serial.println("Setup abgeschlossen."); 
+
 }
 
 
@@ -291,9 +294,9 @@ void loop() {
     prev_buttonState = buttonState;
     if (buttonState == 1) {
       String publishPayload = "play";
-      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       if(mqttclient.connected()) {
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       }
       strip.clear();
       strip.show();  
@@ -305,15 +308,15 @@ void loop() {
     
     if(is_object_detected) {
       String publishPayload = "pause";
-      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       if(mqttclient.connected()) {
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       }
     } else {
       String publishPayload = "play";
-      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       if(mqttclient.connected()) {
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO, publishPayload);
+        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       }
     }
   }
@@ -329,6 +332,9 @@ void connectWiFi() {
   // Es ist besser, die Verbindung nur einmal im setup() zu versuchen. Wenn sie verloren geht,
   // wird in der loop() der Reconnect-Mechanismus ausgelöst.
 }
+
+
+
 
 /********************
  * MQTT-Funktionen
@@ -349,12 +355,22 @@ void connectMQTT() {                                                      // Die
   
   Serial.println("Verbunden mit MQTT-Broker");
 
-  int numTopics = sizeof(subscribe_topics) / sizeof(subscribe_topics[0]);
-  for (int i = 0; i < numTopics; i++) {
-    mqttclient.subscribe(subscribe_topics[i]);
-    Serial.printf("Abonniert Topic: %s\n", subscribe_topics[i]);          // Bestätigung des Abonnements
-  }
+
+  MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.replace("<device_id>", String(device_id));
+  mqttclient.subscribe(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING);
+  Serial.printf("Abonniert Topic: %s\n", MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.c_str());          // Bestätigung des Abonnements
+
+  MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.replace("<device_id>", String(device_id));
+  mqttclient.subscribe(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE);
+  Serial.printf("Abonniert Topic: %s\n", MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.c_str());  
+  
+
+  MQTT_PUBLISH_TOPIC_AUDIO.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
+  
 }
+
+
+
 
 /****************************************
  * MQTT Callback für eingehende Nachrichten
@@ -362,6 +378,7 @@ void connectMQTT() {                                                      // Die
 void mqtt_messageReceived(String& topic, String& payload) {
   Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
 
+  // MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING)) {
     int numLedsToLight = payload.toInt();
     // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
@@ -369,18 +386,19 @@ void mqtt_messageReceived(String& topic, String& payload) {
     // LED-Ring bespielen
     strip.clear();
     for(int i=0; i<numLedsToLight; i++) {                   // für jeden einzelnen Pixel - in der Schleife
-      strip.setPixelColor(i, strip.Color(0, 255, 0));   // Werte: 0 - 255
+      strip.setPixelColor(i, strip.Color(128, 255, 0));   // Werte: 0 - 255
     }
     strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
   }
 
+  // MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
   if (topic.equals(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE)) {
     Serial.printf("Empfangen: %s \n", payload);                // %d für Integer
 
     if(payload == "ended"){
       strip.clear();
       for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
-        strip.setPixelColor(i, strip.Color(25, 50, 0));   // Werte: 0 - 255
+        strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
       }
       strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
     }
@@ -400,13 +418,9 @@ void init_nfc(){                                                          // wir
     while (1);                                                          // bleibt hängen, wenn nichts gefunden wird
   }
 
-  // Chip-Daten anzeigen
-  Serial.printf("Found chip PN5%X\n", (nfc_versiondata >> 24) & 0xFF);
-  Serial.printf("Firmware Version: %d.%d\n", (nfc_versiondata >> 16) & 0xFF, (nfc_versiondata >> 8) & 0xFF);
-
   // Konfiguriere das Modul für RFID-Lesen
   nfc.SAMConfig();
-  Serial.println("Warte auf ein RFID/NFC Tag...");
+  Serial.println("Found chip RFID/NFC Reader. Warte auf Tag...");
 }
 
 void read_nfc(){

@@ -26,7 +26,8 @@ class Audiostationen:
 		print("pause")
 		player = op(playername)
 		player.par.play = 0
-		player.par.cuepulse.pulse()
+		#player.par.cuepulse.pulse()
+		op.MQTT_out.SendMQTT_notretained(op.MQTT_in.par.Topicprefix + "ledring_audio1de/state", "ended")
 		op.Logger.Info(f"[ScenePlayer]: pausing {playername}")
 
 

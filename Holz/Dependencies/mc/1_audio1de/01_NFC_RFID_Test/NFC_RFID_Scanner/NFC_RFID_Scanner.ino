@@ -17,7 +17,7 @@
 #define SCL_PIN 7
 
 // IRQ und RESET Pins definieren – werden vom PN532-Modul NICHT verwendet bei I2C, aber Bibliothek erwartet sie
-#define PN532_IRQ   (2)
+#define PN532_IRQ (2)
 #define PN532_RESET (3)
 
 // Konstruktor mit IRQ, RESET und Wire
@@ -48,9 +48,12 @@ void setup(void) {
   }
 
   // Chip-Daten anzeigen
-  Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
-  Serial.print("Firmware Version: "); Serial.print((versiondata >> 16) & 0xFF, DEC);
-  Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
+  Serial.print("Found chip PN5");
+  Serial.println((versiondata >> 24) & 0xFF, HEX);
+  Serial.print("Firmware Version: ");
+  Serial.print((versiondata >> 16) & 0xFF, DEC);
+  Serial.print('.');
+  Serial.println((versiondata >> 8) & 0xFF, DEC);
 
   // Konfiguriere das Modul für RFID-Lesen
   nfc.SAMConfig();
@@ -69,23 +72,27 @@ void loop(void) {
       if (uid[i] != lastUid[i]) sameTag = false;
     }
 
+    // Erstelle einen String für die UID
+    String uidString = "";
+    for (uint8_t i = 0; i < uidLength; i++) {
+      if (uid[i] < 0x10) {
+        uidString += "0"; // Führende Null hinzufügen
+      }
+      uidString += String(uid[i], HEX);
+    }
+    uidString.toUpperCase(); // Optional: alles in Großbuchstaben umwandeln
+
     if (!sameTag) {
       // Neuer Tag → UID speichern und ausgeben
       memcpy(lastUid, uid, uidLength);
       lastUidLength = uidLength;
       Serial.print("Neuer Tag erkannt, UID: ");
-      for (uint8_t i = 0; i < uidLength; i++) {
-        Serial.print(uid[i], HEX); Serial.print(" ");
-      }
-      Serial.println();
+      Serial.println(uidString);
       lastPrintTime = millis();
     } else if (millis() - lastPrintTime >= 1000) {    // selber NFC-Tag
       // Gleicher Tag → UID periodisch ausgeben
       Serial.print("Gleicher Tag noch da, UID: ");
-      for (uint8_t i = 0; i < uidLength; i++) {
-        Serial.print(uid[i], HEX); Serial.print(" ");
-      }
-      Serial.println();
+      Serial.println(uidString);
       lastPrintTime = millis();
     }
   } else {

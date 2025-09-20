@@ -85,6 +85,7 @@ Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);                     // Konstr
 
 String target_rfid_1 = "";                                             // z. B. 14AA77D6
 String target_rfid_2 = "";                                             // z. B. A44347D0
+String target_rfid_3 = "";                                             // z. B. A44347D0
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
 
@@ -273,6 +274,7 @@ void load_setup_data(){
   mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
   target_rfid_1 = preferences.getString("target_rfid_1", "");
   target_rfid_2 = preferences.getString("target_rfid_2", "");
+  target_rfid_3 = preferences.getString("target_rfid_3", "");
   device_id = preferences.getString("device_id", "9");
   preferences.end();
   Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
@@ -406,6 +408,7 @@ void send_website_settings() {                                          // aufge
   page += "MQTT Broker IP-Adresse: <input type='text' name='mqtt_broker' value='" + mqtt_broker + "'><br><br>";
   page += "RFID-Tag 1: <input type='text' name='target_rfid_1' value='" + target_rfid_1 + "'><br><br>";
   page += "RFID-Tag 2: <input type='text' name='target_rfid_2' value='" + target_rfid_2 + "'><br><br>";
+  page += "RFID-Tag 3: <input type='text' name='target_rfid_3' value='" + target_rfid_3 + "'><br><br>";
   page += "<input type='submit' value='Speichern & Verbinden'>";
   page += "</form>";
   page += "</body></html>";
@@ -455,6 +458,10 @@ void save_settings() {                                            // aufgerufen 
       target_rfid_2 = server.arg("target_rfid_2");
       target_rfid_2.trim();
     }
+    if (server.hasArg("target_rfid_3")){
+      target_rfid_3 = server.arg("target_rfid_3");
+      target_rfid_3.trim();
+    }
 
     // Im Flash speichern
     preferences.begin("wifi", false);
@@ -464,6 +471,7 @@ void save_settings() {                                            // aufgerufen 
     preferences.putString("mqtt_broker", mqtt_broker);
     preferences.putString("target_rfid_1", target_rfid_1);
     preferences.putString("target_rfid_2", target_rfid_2);
+    preferences.putString("target_rfid_3", target_rfid_3);
     preferences.end();
 
     // Rückmeldung
@@ -515,7 +523,7 @@ void read_nfc(){
     current_NFC_string = nfc_payload; 
     // Serial.println(current_NFC_string);
 
-    if(current_NFC_string == target_rfid_1 || current_NFC_string == target_rfid_2 ){
+    if(current_NFC_string == target_rfid_1 || current_NFC_string == target_rfid_2 || current_NFC_string == target_rfid_3 ){
       nfc_isTargetTag = true;
       // Serial.println("der gezeigte ID ist der Gesuchte");
     }

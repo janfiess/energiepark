@@ -52,41 +52,41 @@ class MQTTin:
 		elif(topic == self.topic_prefix + "reset"):
 			op.Reset.ResetRoutine()
 
-		elif(topic == self.topic_prefix + "player/audio1de"):
+		elif(topic == self.topic_prefix + "player/audio/1"):
 			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio1_DE")
+				op.Audiostationen.Play_audio("Audio1")
 			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio1_DE")
+				op.Audiostationen.Pause_audio("Audio1")
 		
-		elif(topic == self.topic_prefix + "player/audio1en"):
+		elif(topic == self.topic_prefix + "player/audio/2"):
 			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio1_EN")
+				op.Audiostationen.Play_audio("Audio2")
 			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio1_EN")
+				op.Audiostationen.Pause_audio("Audio2")
 
-		elif(topic == self.topic_prefix + "player/audio2de"): 
-			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio2_DE")
-			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio2_DE")
-
-		elif(topic == self.topic_prefix + "player/audio2en"): 
-			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio2_EN")
-			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio2_EN")
-				
 		elif(topic == self.topic_prefix + "player/audio3"): 
 			if(payload == "play"):
 				op.Audiostationen.Play_audio("Audio3")
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio3")
-				
+
 		elif(topic == self.topic_prefix + "player/audio4"): 
 			if(payload == "play"):
 				op.Audiostationen.Play_audio("Audio4")
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio4")
+				
+		elif(topic == self.topic_prefix + "player/audio5"): 
+			if(payload == "play"):
+				op.Audiostationen.Play_audio("Audio5")
+			elif(payload == "pause"):
+				op.Audiostationen.Pause_audio("Audio5")
+				
+		elif(topic == self.topic_prefix + "player/audio6"): 
+			if(payload == "play"):
+				op.Audiostationen.Play_audio("Audio6")
+			elif(payload == "pause"):
+				op.Audiostationen.Pause_audio("Audio6")
 				
 		# RFID-Stationen
 		

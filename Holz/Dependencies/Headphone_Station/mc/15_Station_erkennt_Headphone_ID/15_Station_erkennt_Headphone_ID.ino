@@ -46,7 +46,8 @@
 
 
 Preferences preferences;
-String device_id = "";
+String id_station;                              // id der Kopfhörerstation 1 - 6
+int current_headphone_id;                       // 1 - 6
 
 
 // Variablen für die Ziel-WLAN-Daten - wird auf der Setup-Website des ESP-Access Points eingegeben.
@@ -63,11 +64,11 @@ const byte DNS_PORT = 53;                                              // für C
   
 
 // MQTT
-String mqtt_broker = "";                                                                           // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
-const char* mqtt_client_id = "headphone_station_audio1de";
-String MQTT_PUBLISH_TOPIC_AUDIO = "holz/player/audio<device_id>de";                                // Topics.  -   Diese werden für Subscribing und Publishing genutzt
-String MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring_audio<device_id>de/numsections";      // Payload: 0 - 12
-String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring_audio<device_id>de/state";                 // message when audio track ended -> Payload: "leds_idle"
+String mqtt_broker = "";                                                          // "broker.emqx.io", "192.168.0.60", "test.mosquitto.org", "broker.hivemq.com"
+String MQTT_PUBLISH_TOPIC_AUDIO_PRE = "holz/player/audio/";                       // Topics.  -   Diese werden für Subscribing und Publishing genutzt
+String MQTT_PUBLISH_TOPIC_AUDIO;                                                  // je nach Kopfhörer kann die id wechseln, z. B.  "holz/ledring/numsections/1"
+String MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING = "holz/ledring/numsections/#";      // Beispiel: "holz/ledring/numsections/1"   |  Payload: 0 - 12
+String MQTT_SUBSCRIBE_TOPIC_TRACK_STATE = "holz/ledring/state/#";                 // message when audio track ended -> Payload: "leds_idle"
 String subscribe_topics[10];                                                                       // Array der zu abonnierenden Topics (hier nur eines, aber erweiterbar)
 MQTTClient mqttclient;
 
@@ -83,11 +84,14 @@ MQTTClient mqttclient;
 #define PN532_RESET (3)
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET, &Wire);                     // Konstruktor mit IRQ, RESET und Wire
 
-// String target_rfid_1a = "";                                             // z. B. 14AA77D6
-// String target_rfid_1b = "";                                             // z. B. A44347D0
-// String target_rfid_1c = "";                                             // z. B. A44347D0
-
 String target_rfid_1[3];
+String target_rfid_2[3];
+String target_rfid_3[3];
+String target_rfid_4[3];
+String target_rfid_5[3];
+String target_rfid_6[3];
+
+
 
 const uint8_t NFC_TARGET_UID_LENGTH = 7;
 
@@ -129,7 +133,7 @@ void connectWiFi();
 void connectMQTT();
 void start_webserver();
 void start_access_point();
-void load_setup_data();                                  // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
+void load_setup_data();                                                // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
 void mqtt_messageReceived(String& topic, String& payload);
 void send_website_save();
 void save_settings();
@@ -153,7 +157,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("Kopfhörer-Station startet...");
-  load_setup_data();    // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
+  load_setup_data();                               // Gespeicherte Setup-Daten (Preferences -> persistent in Flash-Speicher) laden, falls bereits per Setup-Seite festgelegt
   connectWiFi();
 
   if (WiFi.status() == WL_CONNECTED) {             // MQTT Client initialisieren und Callback setzen 
@@ -163,7 +167,7 @@ void setup() {
   } 
   else start_access_point();                       // Falls keine Verbindung zu einem gespeicherten Netzwerk zustande kommt, starte den Access Point
     
-  start_webserver();    // Webserver starten, unabhängig von STA oder AP
+  start_webserver();                               // Webserver starten, unabhängig von STA oder AP
 
 
   // I2C
@@ -215,6 +219,7 @@ void loop() {
 
   if(is_object_detected != prev_is_object_detected) {
     prev_is_object_detected = is_object_detected;
+    MQTT_PUBLISH_TOPIC_AUDIO = MQTT_PUBLISH_TOPIC_AUDIO_PRE + String(current_headphone_id);
     
     if(is_object_detected) {
       String publishPayload = "pause";
@@ -222,6 +227,14 @@ void loop() {
       if(mqttclient.connected()) {
         mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
       }
+
+      // LED Ring in Idle Mode
+      strip.clear();
+      for(int i=0; i<12; i++) {                                        // für jeden einzelnen Pixel - in der Schleife    
+        strip.setPixelColor(i, strip.Color(20, 40, 0));                // Werte: 0 - 255
+      }
+      strip.show();                                                    // sende den aktualisierten Pixel an den LED-Ring
+ 
     } else {
       String publishPayload = "play";
       Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
@@ -232,7 +245,6 @@ void loop() {
   }
   
   read_button();                                                          // Alterative: Taster statt RFID-Erkennung
-
   delay(100);                                                             // kurze Pause, entlastet den Prozessor
 }
 
@@ -275,13 +287,32 @@ void load_setup_data(){
   targetSSID = preferences.getString("ssid", "");
   targetPassword = preferences.getString("password", "").c_str();
   mqtt_broker = preferences.getString("mqtt_broker", "").c_str();
-  // target_rfid_1a = preferences.getString("target_rfid_1a", "");
-  // target_rfid_1b = preferences.getString("target_rfid_1b", "");
-  // target_rfid_1c = preferences.getString("target_rfid_1c", "");
+
   target_rfid_1[0] = preferences.getString("target_rfid_1a", "");
   target_rfid_1[1] = preferences.getString("target_rfid_1b", "");
   target_rfid_1[2] = preferences.getString("target_rfid_1c", "");
-  device_id = preferences.getString("device_id", "9");
+
+  target_rfid_2[0] = preferences.getString("target_rfid_2a", "");
+  target_rfid_2[1] = preferences.getString("target_rfid_2b", "");
+  target_rfid_2[2] = preferences.getString("target_rfid_2c", "");
+
+  target_rfid_3[0] = preferences.getString("target_rfid_3a", "");
+  target_rfid_3[1] = preferences.getString("target_rfid_3b", "");
+  target_rfid_3[2] = preferences.getString("target_rfid_3c", "");
+
+  target_rfid_4[0] = preferences.getString("target_rfid_4a", "");
+  target_rfid_4[1] = preferences.getString("target_rfid_4b", "");
+  target_rfid_4[2] = preferences.getString("target_rfid_4c", "");
+
+  target_rfid_5[0] = preferences.getString("target_rfid_5a", "");
+  target_rfid_5[1] = preferences.getString("target_rfid_5b", "");
+  target_rfid_5[2] = preferences.getString("target_rfid_5c", "");
+
+  target_rfid_6[0] = preferences.getString("target_rfid_6a", "");
+  target_rfid_6[1] = preferences.getString("target_rfid_6b", "");
+  target_rfid_6[2] = preferences.getString("target_rfid_6c", "");
+
+  id_station = preferences.getString("id_station", "9");
   preferences.end();
   Serial.printf("Found in Flash: SSID: %s, Passwort: %s \n", targetSSID.c_str(), targetPassword.c_str());
 }
@@ -292,11 +323,11 @@ void load_setup_data(){
  * MQTT-Verbindung herstellen
  ****************************************************************************************************/ 
 
-void connectMQTT() {                                                      // Diese Funktion kümmert sich nur noch um den eigentlichen Verbindungsaufbau und das Abonnement.
+void connectMQTT() {                                                                        // Diese Funktion kümmert sich nur noch um den eigentlichen Verbindungsaufbau und das Abonnement.
   Serial.printf("Verbinde mit MQTT Broker: %s\n", mqtt_broker);
   int attempts = 0;
   // Versuche, eine Verbindung herzustellen, bis sie erfolgreich ist
-  while (!mqttclient.connect(mqtt_client_id)) {                           // Optional: Mit Benutzername/Passwort: mqttclient.connect(mqtt_client_id, "username", "password"). ->  -> username und passwort sind oft jeweils "public"
+  while (!mqttclient.connect(id_station.c_str())) {                                         // Optional: Mit Benutzername/Passwort: mqttclient.connect(mqtt_client_id, "username", "password"). ->  -> username und passwort sind oft jeweils "public"
     Serial.println("Fehler beim Verbinden mit MQTT-Broker. Neuer Versuch in 2 Sekunden...");
     attempts++;
     if(attempts > 10){
@@ -308,17 +339,11 @@ void connectMQTT() {                                                      // Die
   
   Serial.println("Verbunden mit MQTT-Broker");
 
-
-  MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.replace("<device_id>", String(device_id));
   mqttclient.subscribe(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING);
   Serial.printf("Abonniert Topic: %s\n", MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING.c_str());          // Bestätigung des Abonnements
 
-  MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.replace("<device_id>", String(device_id));
   mqttclient.subscribe(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE);
   Serial.printf("Abonniert Topic: %s\n", MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.c_str());  
-  
-  MQTT_PUBLISH_TOPIC_AUDIO.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
-  
 }
 
 
@@ -329,32 +354,69 @@ void connectMQTT() {                                                      // Die
 
 void mqtt_messageReceived(String& topic, String& payload) {
   Serial.printf("<-- MQTT msg empfangen: Topic: %s, Payload: %s\n", topic.c_str(), payload.c_str());
+  
 
-  if (topic.equals(MQTT_SUBSCRIBE_TOPIC_SECTIONS_LEDRING)) {
+
+  String id_from_incoming_topic = get_id_from_incoming_topic(topic);
+  // Serial.printf("id_station: %s \n", id_station);
+  if(id_from_incoming_topic != String(current_headphone_id)){
+    Serial.println("Diese Nachricht betrifft nicht diese Station");
+    return;
+  } 
+
+
+
+  if (topic.startsWith("holz/ledring/numsections")) {
     int numLedsToLight = payload.toInt();
-    // Serial.printf("Empfangen: %d LEDs\n", numLedsToLight);                // %d für Integer
 
     // LED-Ring bespielen
     strip.clear();
     for(int i=0; i<numLedsToLight; i++) {                   // für jeden einzelnen Pixel - in der Schleife
-      strip.setPixelColor(i, strip.Color(128, 255, 0));   // Werte: 0 - 255
+      strip.setPixelColor(i, strip.Color(128, 255, 0));     // Werte: 0 - 255
     }
-    strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
+    strip.show();                                           // sende den aktualisierten Pixel an den LED-Ring
   }
 
-  // MQTT_SUBSCRIBE_TOPIC_TRACK_STATE.replace("<device_id>", String(device_id));  // Ersetze Platzhalter
-  if (topic.equals(MQTT_SUBSCRIBE_TOPIC_TRACK_STATE)) {
-    Serial.printf("Empfangen: %s \n", payload);                // %d für Integer
 
+
+
+
+
+  if (topic.startsWith("holz/ledring/state")) {
     if(payload == "leds_idle"){
       strip.clear();
-      for(int i=0; i<12; i++) {                   // für jeden einzelnen Pixel - in der Schleife    
-        strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
+      for(int i=0; i<12; i++) {                             // für jeden einzelnen Pixel - in der Schleife    
+        strip.setPixelColor(i, strip.Color(20, 40, 0));     // Werte: 0 - 255
       }
-      strip.show();                                     // sende den aktualisierten Pixel an den LED-Ring
+      strip.show();                                         // sende den aktualisierten Pixel an den LED-Ring
     }
   }
 }
+
+
+
+
+// called in mqtt_messageReceived()
+String get_id_from_incoming_topic(String topic){
+// Finde die Position des letzten Schrägstrichs
+    int lastSlashIndex = topic.lastIndexOf('/');
+    // Überprüfe, ob ein Schrägstrich gefunden wurde
+    if (lastSlashIndex != -1) {
+      // Extrahiere den Teil des Strings nach dem letzten Schrägstrich
+      String deviceIdString = topic.substring(lastSlashIndex + 1);
+
+
+      // Gib das Ergebnis aus
+      // Wandle den extrahierten String in einen Integer um
+      String id_from_incoming_message = deviceIdString;
+      Serial.printf("id_from_incoming_message: %s \n", id_from_incoming_message);
+      // Serial.println(id_from_incoming_message); // Ausgabe: 1
+      return id_from_incoming_message;
+    }
+  }
+
+
+
 
 
 
@@ -410,11 +472,33 @@ void send_website_settings() {                                          // aufge
   page += "<form action='/save' method='POST'>";
   page += "SSID: <input type='text' name='ssid' value='" + targetSSID + "'><br><br>";
   page += "Passwort: <input type='password' name='password' value='" + targetPassword + "'><br><br>";
-  page += "Device ID: <input type='text' name='device_id' value='" + device_id + "'><br><br>";
+  page += "Device ID: <input type='text' name='id_station' value='" + id_station + "'><br><br>";
   page += "MQTT Broker IP-Adresse: <input type='text' name='mqtt_broker' value='" + mqtt_broker + "'><br><br>";
-  page += "RFID-Tag 1a: <input type='text' name='target_rfid_1a' value='" + target_rfid_1[0] + "'><br><br>";
-  page += "RFID-Tag 1b: <input type='text' name='target_rfid_1b' value='" + target_rfid_1[1] + "'><br><br>";
-  page += "RFID-Tag 1c: <input type='text' name='target_rfid_1c' value='" + target_rfid_1[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 1a: <input type='text' name='target_rfid_1a' value='" + target_rfid_1[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 1b: <input type='text' name='target_rfid_1b' value='" + target_rfid_1[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 1c: <input type='text' name='target_rfid_1c' value='" + target_rfid_1[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 2a: <input type='text' name='target_rfid_2a' value='" + target_rfid_2[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 2b: <input type='text' name='target_rfid_2b' value='" + target_rfid_2[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 2c: <input type='text' name='target_rfid_2c' value='" + target_rfid_2[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 3a: <input type='text' name='target_rfid_3a' value='" + target_rfid_3[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 3b: <input type='text' name='target_rfid_3b' value='" + target_rfid_3[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 3c: <input type='text' name='target_rfid_3c' value='" + target_rfid_3[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 4a: <input type='text' name='target_rfid_4a' value='" + target_rfid_4[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 4b: <input type='text' name='target_rfid_4b' value='" + target_rfid_4[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 4c: <input type='text' name='target_rfid_4c' value='" + target_rfid_4[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 5a: <input type='text' name='target_rfid_5a' value='" + target_rfid_5[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 5b: <input type='text' name='target_rfid_5b' value='" + target_rfid_5[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 5c: <input type='text' name='target_rfid_5c' value='" + target_rfid_5[2] + "'><br><br>";
+
+  page += "RFID-Tag Kopfhörer 6a: <input type='text' name='target_rfid_6a' value='" + target_rfid_6[0] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 6b: <input type='text' name='target_rfid_6b' value='" + target_rfid_6[1] + "'><br><br>";
+  page += "RFID-Tag Kopfhörer 6c: <input type='text' name='target_rfid_6c' value='" + target_rfid_6[2] + "'><br><br>";
+
   page += "<input type='submit' value='Speichern & Verbinden'>";
   page += "</form>";
   page += "</body></html>";
@@ -442,15 +526,15 @@ void save_settings() {                                            // aufgerufen 
   if (server.method() == HTTP_POST) {
     if (server.hasArg("ssid")){
       targetSSID = server.arg("ssid");
-      targetSSID.trim();      // Führende und nachfolgende Leerzeichen entfernen, um Verbindungsfehler zu vermeiden
+      targetSSID.trim();                                          // Führende und nachfolgende Leerzeichen entfernen, um Verbindungsfehler zu vermeiden
     }
     if (server.hasArg("password")){
       targetPassword = server.arg("password");
       targetPassword.trim();
     }
-    if (server.hasArg("device_id")){
-      device_id = server.arg("device_id");
-      device_id.trim();
+    if (server.hasArg("id_station")){
+      id_station = server.arg("id_station");
+      id_station.trim();
     }
     if (server.hasArg("mqtt_broker")) {
       mqtt_broker = server.arg("mqtt_broker");
@@ -469,15 +553,102 @@ void save_settings() {                                            // aufgerufen 
       target_rfid_1[2].trim();
     }
 
+    if (server.hasArg("target_rfid_2a")){
+      target_rfid_2[0] = server.arg("target_rfid_2a");
+      target_rfid_2[0].trim();
+    }
+    if (server.hasArg("target_rfid_2b")){
+      target_rfid_2[1] = server.arg("target_rfid_2b");
+      target_rfid_2[1].trim();
+    }
+    if (server.hasArg("target_rfid_2c")){
+      target_rfid_2[2] = server.arg("target_rfid_2c");
+      target_rfid_2[2].trim();
+    }
+
+    if (server.hasArg("target_rfid_3a")){
+      target_rfid_3[0] = server.arg("target_rfid_3a");
+      target_rfid_3[0].trim();
+    }
+    if (server.hasArg("target_rfid_3b")){
+      target_rfid_3[1] = server.arg("target_rfid_3b");
+      target_rfid_3[1].trim();
+    }
+    if (server.hasArg("target_rfid_3c")){
+      target_rfid_3[2] = server.arg("target_rfid_3c");
+      target_rfid_3[2].trim();
+    }
+
+    if (server.hasArg("target_rfid_4a")){
+      target_rfid_4[0] = server.arg("target_rfid_4a");
+      target_rfid_4[0].trim();
+    }
+    if (server.hasArg("target_rfid_4b")){
+      target_rfid_4[1] = server.arg("target_rfid_4b");
+      target_rfid_4[1].trim();
+    }
+    if (server.hasArg("target_rfid_4c")){
+      target_rfid_4[2] = server.arg("target_rfid_4c");
+      target_rfid_4[2].trim();
+    }
+
+    if (server.hasArg("target_rfid_5a")){
+      target_rfid_5[0] = server.arg("target_rfid_5a");
+      target_rfid_5[0].trim();
+    }
+    if (server.hasArg("target_rfid_5b")){
+      target_rfid_5[1] = server.arg("target_rfid_5b");
+      target_rfid_5[1].trim();
+    }
+    if (server.hasArg("target_rfid_5c")){
+      target_rfid_5[2] = server.arg("target_rfid_5c");
+      target_rfid_5[2].trim();
+    }
+
+    if (server.hasArg("target_rfid_6a")){
+      target_rfid_6[0] = server.arg("target_rfid_6a");
+      target_rfid_6[0].trim();
+    }
+    if (server.hasArg("target_rfid_6b")){
+      target_rfid_6[1] = server.arg("target_rfid_6b");
+      target_rfid_6[1].trim();
+    }
+    if (server.hasArg("target_rfid_6c")){
+      target_rfid_6[2] = server.arg("target_rfid_6c");
+      target_rfid_6[2].trim();
+    }
+
     // Im Flash speichern
     preferences.begin("wifi", false);
     preferences.putString("ssid", targetSSID);
     preferences.putString("password", targetPassword);
-    preferences.putString("device_id", device_id);
+    preferences.putString("id_station", id_station);
     preferences.putString("mqtt_broker", mqtt_broker);
+
     preferences.putString("target_rfid_1a", target_rfid_1[0]);
     preferences.putString("target_rfid_1b", target_rfid_1[1]);
     preferences.putString("target_rfid_1c", target_rfid_1[2]);
+
+    preferences.putString("target_rfid_2a", target_rfid_2[0]);
+    preferences.putString("target_rfid_2b", target_rfid_2[1]);
+    preferences.putString("target_rfid_2c", target_rfid_2[2]);
+
+    preferences.putString("target_rfid_3a", target_rfid_3[0]);
+    preferences.putString("target_rfid_3b", target_rfid_3[1]);
+    preferences.putString("target_rfid_3c", target_rfid_3[2]);
+
+    preferences.putString("target_rfid_4a", target_rfid_4[0]);
+    preferences.putString("target_rfid_4b", target_rfid_4[1]);
+    preferences.putString("target_rfid_4c", target_rfid_4[2]);
+
+    preferences.putString("target_rfid_5a", target_rfid_5[0]);
+    preferences.putString("target_rfid_5b", target_rfid_5[1]);
+    preferences.putString("target_rfid_5c", target_rfid_5[2]);
+
+    preferences.putString("target_rfid_6a", target_rfid_6[0]);
+    preferences.putString("target_rfid_6b", target_rfid_6[1]);
+    preferences.putString("target_rfid_6c", target_rfid_6[2]);
+
     preferences.end();
 
     // Rückmeldung
@@ -529,13 +700,7 @@ void read_nfc(){
     current_NFC_string = nfc_payload; 
     // Serial.println(current_NFC_string);
 
-    int current_headphone_id = identifyHeadphone(current_NFC_string);
-
-
-    // if(current_NFC_string == target_rfid_1[0] || current_NFC_string == target_rfid_1[1] || current_NFC_string == target_rfid_1[2] ){
-    //   nfc_isTargetTag = true;
-    //   // Serial.println("der gezeigte ID ist der Gesuchte");
-    // }
+    current_headphone_id = identifyHeadphone(current_NFC_string);
   }
 
   // Logik für die Bestätigung von Anwesenheit/Abwesenheit
@@ -547,7 +712,7 @@ void read_nfc(){
       nfc_presentConfirmCounter = NFC_CONFIRM_PRESENT_THRESHOLD;          // Zähler auf Max setzen, um Überlauf zu vermeiden
       if (!is_object_detected) {  
         Serial.printf("Ziel-Tag erkannt: %s\n", current_NFC_string);      // current_NFC_string == target_id 
-        is_object_detected = true; // Status auf "anwesend" setzen
+        is_object_detected = true;                                        // Status auf "anwesend" setzen
       }
     }
   } else {                                                                // Wenn der Ziel-Tag NICHT gelesen wurde (entweder kein Tag oder falscher Tag)
@@ -569,6 +734,7 @@ void read_nfc(){
  *    Erkenne, welcher Kopfhörer 1 - 6 in die Station gehängt oder entfernt wurde. Ordne den RFID String dem richtigen Kopfhörer zu.
  *****************************************************************************************/
 
+// called in read_nfc()
 int identifyHeadphone(String value) { 
   for (int i = 0; i < sizeof(target_rfid_1) / sizeof(target_rfid_1[0]); i++) {
     if (target_rfid_1[i] == value) {
@@ -620,11 +786,7 @@ void read_button(){
   if(buttonState != prev_buttonState) {
     prev_buttonState = buttonState;
     if (buttonState == 1) {
-      String publishPayload = "play";
-      Serial.printf("--> Publishing: Topic: %s, Payload: %s\n", MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
-      if(mqttclient.connected()) {
-        mqttclient.publish(MQTT_PUBLISH_TOPIC_AUDIO.c_str(), publishPayload);
-      }
+      ESP.restart();
     }
   }
 }
@@ -639,7 +801,7 @@ void init_led_ring(){
   strip.setBrightness(LED_BRIGHTNESS);
   strip.clear();
   for (int i = 0; i < 12; i++) {  
-    strip.setPixelColor(i, strip.Color(20, 40, 0));   // Werte: 0 - 255
+    strip.setPixelColor(i, strip.Color(20, 40, 0));                 // Werte: 0 - 255
   }
   strip.show();  
 }

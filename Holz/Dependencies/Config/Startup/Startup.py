@@ -29,12 +29,12 @@ class Startup:
 		# op.Logger.Info("[Startup]: startup part 3")
 		# disable black display and mute audio if enabled for any reason
 		# op.Display_out.par.Displayblack = 0 
-		op.Audiostationen.Pause_audio("Audio1_DE")
-		op.Audiostationen.Pause_audio("Audio1_EN")
-		op.Audiostationen.Pause_audio("Audio2_DE")
-		op.Audiostationen.Pause_audio("Audio2_EN")
+		op.Audiostationen.Pause_audio("Audio1")
+		op.Audiostationen.Pause_audio("Audio2")
 		op.Audiostationen.Pause_audio("Audio3")
 		op.Audiostationen.Pause_audio("Audio4")
+		op.Audiostationen.Pause_audio("Audio5")
+		op.Audiostationen.Pause_audio("Audio6")
 		return
 		
 	def OnParamChanged(self, par):

@@ -64,29 +64,18 @@ class MQTTin:
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio2")
 
-		elif(topic == self.topic_prefix + "player/audio3"): 
+		elif(topic == self.topic_prefix + "player/audio/3"): 
 			if(payload == "play"):
 				op.Audiostationen.Play_audio("Audio3")
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio3")
 
-		elif(topic == self.topic_prefix + "player/audio4"): 
+		elif(topic == self.topic_prefix + "player/audio/4"): 
 			if(payload == "play"):
 				op.Audiostationen.Play_audio("Audio4")
 			elif(payload == "pause"):
 				op.Audiostationen.Pause_audio("Audio4")
-				
-		elif(topic == self.topic_prefix + "player/audio5"): 
-			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio5")
-			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio5")
-				
-		elif(topic == self.topic_prefix + "player/audio6"): 
-			if(payload == "play"):
-				op.Audiostationen.Play_audio("Audio6")
-			elif(payload == "pause"):
-				op.Audiostationen.Pause_audio("Audio6")
+
 				
 		# RFID-Stationen
 		

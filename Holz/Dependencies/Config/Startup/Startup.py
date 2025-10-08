@@ -33,8 +33,7 @@ class Startup:
 		op.Audiostationen.Pause_audio("Audio2")
 		op.Audiostationen.Pause_audio("Audio3")
 		op.Audiostationen.Pause_audio("Audio4")
-		op.Audiostationen.Pause_audio("Audio5")
-		op.Audiostationen.Pause_audio("Audio6")
+
 		return
 		
 	def OnParamChanged(self, par):

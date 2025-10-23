@@ -1,0 +1,338 @@
+2025-10-13 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-13 03:10:46 - DEBUG - [Logger]: START APPLICATION
+2025-10-13 03:10:47 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-13 03:10:55 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-13 03:10:55 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-13 03:10:55 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-13 03:10:55 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-13 15:44:34 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-13 15:44:46 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-13 15:44:55 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-13 15:45:05 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-13 15:45:05 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-13 15:45:09 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-13 15:45:17 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-13 15:45:18 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-13 15:45:18 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-13 15:45:21 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: play
+2025-10-13 15:45:21 - INFO - [ScenePlayer]: playing now Audio2
+2025-10-13 15:45:25 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 1
+2025-10-13 15:45:25 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-13 15:45:26 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-13 15:45:26 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-13 15:45:31 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-13 15:45:31 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-14 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-14 03:10:31 - DEBUG - [Logger]: START APPLICATION
+2025-10-14 03:10:33 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-14 03:10:40 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-14 03:10:40 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-14 03:10:40 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-14 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-15 03:10:31 - DEBUG - [Logger]: START APPLICATION
+2025-10-15 03:10:33 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-15 03:10:40 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-15 03:10:40 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-15 03:10:40 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-15 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 14:44:35 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-15 14:44:35 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-15 14:44:39 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-15 14:44:39 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: play
+2025-10-15 14:44:39 - INFO - [ScenePlayer]: playing now Audio2
+2025-10-15 14:44:44 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 1
+2025-10-15 14:44:47 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-15 14:44:52 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 2
+2025-10-15 14:44:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-15 14:45:00 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 3
+2025-10-15 14:45:03 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-15 14:45:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 4
+2025-10-15 14:45:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-15 14:45:16 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 5
+2025-10-15 14:45:19 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-15 14:45:19 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-15 14:45:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-15 14:45:20 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-15 14:45:20 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-15 15:54:02 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-15 15:54:02 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-15 15:54:06 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 1
+2025-10-15 15:54:07 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-15 15:54:07 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-15 15:54:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-15 15:54:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-15 15:54:13 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: play
+2025-10-15 15:54:13 - INFO - [ScenePlayer]: playing now Audio1
+2025-10-15 15:54:14 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 2
+2025-10-15 15:54:17 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 1
+2025-10-15 15:54:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-15 15:54:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 3
+2025-10-15 15:54:25 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 2
+2025-10-15 15:54:27 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-15 15:54:30 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 4
+2025-10-15 15:54:33 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 3
+2025-10-15 15:54:35 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-15 15:54:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 5
+2025-10-15 15:54:41 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 4
+2025-10-15 15:54:43 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-15 15:54:46 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 6
+2025-10-15 15:54:49 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 5
+2025-10-15 15:54:51 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-15 15:54:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 7
+2025-10-15 15:54:57 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 6
+2025-10-15 15:54:59 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 7
+2025-10-15 15:55:02 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 8
+2025-10-15 15:55:05 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 7
+2025-10-15 15:55:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 8
+2025-10-15 15:55:10 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 9
+2025-10-15 15:55:13 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 8
+2025-10-15 15:55:14 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 9
+2025-10-15 15:55:18 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 10
+2025-10-15 15:55:21 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 9
+2025-10-15 15:55:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 10
+2025-10-15 15:55:26 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 11
+2025-10-15 15:55:29 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 10
+2025-10-15 15:55:30 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 11
+2025-10-15 15:55:34 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 12
+2025-10-15 15:55:36 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 11
+2025-10-15 15:55:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/4 - Payload: leds_idle
+2025-10-15 15:55:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 12
+2025-10-15 15:55:42 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/3 - Payload: leds_idle
+2025-10-15 15:55:44 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 12
+2025-10-15 15:55:46 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-15 15:55:46 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-15 15:55:48 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-15 15:55:48 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 15:55:48 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/1 - Payload: leds_idle
+2025-10-15 15:55:50 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-15 15:55:50 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-15 15:55:50 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 0
+2025-10-15 15:55:51 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-15 15:55:51 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-15 15:55:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 1
+2025-10-15 15:56:02 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 2
+2025-10-15 15:56:10 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 3
+2025-10-15 15:56:11 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-15 15:56:18 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 4
+2025-10-15 15:56:26 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 5
+2025-10-15 15:56:27 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-15 15:56:34 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 6
+2025-10-15 15:56:41 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-15 15:56:42 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 7
+2025-10-15 15:56:50 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 8
+2025-10-15 15:56:54 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-15 15:56:58 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 9
+2025-10-15 15:57:06 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 10
+2025-10-15 15:57:14 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 11
+2025-10-15 15:57:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 12
+2025-10-15 15:57:26 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/4 - Payload: leds_idle
+2025-10-15 16:01:22 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-15 16:01:22 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-15 16:01:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-15 16:01:26 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-15 16:01:34 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-15 16:01:35 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-15 16:01:35 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 16:01:36 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-15 16:01:36 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-15 16:01:36 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 0
+2025-10-15 16:01:40 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 1
+2025-10-15 16:01:42 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-15 16:01:48 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 2
+2025-10-15 16:01:50 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-15 16:01:56 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 3
+2025-10-15 16:01:58 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-15 16:02:04 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 4
+2025-10-15 16:02:06 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-15 16:02:12 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 5
+2025-10-15 16:02:14 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 7
+2025-10-15 16:02:20 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 6
+2025-10-15 16:02:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 8
+2025-10-15 16:02:28 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 7
+2025-10-15 16:02:30 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 9
+2025-10-15 16:02:36 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 8
+2025-10-15 16:02:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 10
+2025-10-15 16:02:44 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 9
+2025-10-15 16:02:46 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 11
+2025-10-15 16:02:52 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 10
+2025-10-15 16:02:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 12
+2025-10-15 16:02:58 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/3 - Payload: leds_idle
+2025-10-15 16:03:00 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 11
+2025-10-15 16:03:05 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-15 16:03:05 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-15 16:03:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 12
+2025-10-15 16:03:12 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/4 - Payload: leds_idle
+2025-10-15 16:03:19 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-15 16:03:19 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 16:15:45 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-15 16:16:01 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-15 16:16:25 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-15 16:16:34 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-15 16:16:43 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-15 16:16:43 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-15 16:16:43 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 0
+2025-10-15 16:16:47 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 1
+2025-10-15 16:16:52 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-15 16:16:52 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 16:16:55 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-15 16:16:55 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-15 16:16:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 0
+2025-10-15 16:16:59 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-15 16:16:59 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-15 16:17:02 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: play
+2025-10-15 16:17:02 - INFO - [ScenePlayer]: playing now Audio2
+2025-10-15 16:17:02 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 0
+2025-10-15 16:17:03 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-15 16:17:03 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-15 16:17:04 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-15 16:17:04 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-15 16:17:04 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-15 16:17:04 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: play
+2025-10-15 16:17:04 - INFO - [ScenePlayer]: playing now Audio2
+2025-10-15 16:17:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-15 16:17:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 1
+2025-10-15 16:17:15 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-15 16:17:16 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 2
+2025-10-15 16:17:21 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-15 16:17:21 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-15 16:17:22 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: play
+2025-10-15 16:17:22 - INFO - [ScenePlayer]: playing now Audio1
+2025-10-15 16:17:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 0
+2025-10-15 16:17:23 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-15 16:17:26 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 1
+2025-10-15 16:17:31 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-15 16:17:34 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 2
+2025-10-15 16:17:39 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-15 16:17:42 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 3
+2025-10-15 16:17:47 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-15 16:17:50 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 4
+2025-10-15 16:17:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 7
+2025-10-15 16:17:58 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 5
+2025-10-15 16:18:03 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 8
+2025-10-15 16:18:06 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 6
+2025-10-15 16:18:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 9
+2025-10-15 16:18:14 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 7
+2025-10-15 16:18:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 10
+2025-10-15 16:18:22 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 8
+2025-10-15 16:18:27 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 11
+2025-10-15 16:18:30 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 9
+2025-10-15 16:18:35 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 12
+2025-10-15 16:18:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 10
+2025-10-15 16:18:39 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/3 - Payload: leds_idle
+2025-10-15 16:18:42 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-15 16:18:42 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-15 16:18:46 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 11
+2025-10-15 16:18:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 12
+2025-10-15 16:18:57 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/1 - Payload: leds_idle
+2025-10-15 16:19:11 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-15 16:19:11 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-16 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-16 03:10:40 - DEBUG - [Logger]: START APPLICATION
+2025-10-16 03:10:41 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-16 03:10:49 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-16 03:10:49 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-16 03:10:49 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-16 03:10:49 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-17 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-17 03:10:33 - DEBUG - [Logger]: START APPLICATION
+2025-10-17 03:10:34 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-17 03:10:42 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-17 03:10:42 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-17 03:10:42 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-17 03:10:42 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-17 14:30:57 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: play
+2025-10-17 14:30:57 - INFO - [ScenePlayer]: playing now Audio2
+2025-10-17 14:31:00 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-17 14:31:00 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-17 14:31:01 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/2 - Payload: 1
+2025-10-17 14:31:03 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-17 14:31:03 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-17 14:31:04 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-17 14:31:04 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: play
+2025-10-17 14:31:04 - INFO - [ScenePlayer]: playing now Audio1
+2025-10-17 14:31:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 1
+2025-10-17 14:31:12 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-17 14:31:16 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 2
+2025-10-17 14:31:20 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-17 14:31:24 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 3
+2025-10-17 14:31:27 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-17 14:31:32 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 4
+2025-10-17 14:31:35 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-17 14:31:35 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-17 14:31:35 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-17 14:31:40 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 5
+2025-10-17 14:31:48 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 6
+2025-10-17 14:31:56 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 7
+2025-10-17 14:32:04 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 8
+2025-10-17 14:32:12 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 9
+2025-10-17 14:32:20 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 10
+2025-10-17 14:32:24 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-17 14:32:28 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 11
+2025-10-17 14:32:36 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 12
+2025-10-17 14:32:36 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-17 14:32:40 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/1 - Payload: leds_idle
+2025-10-17 14:32:45 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-17 14:32:55 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-17 14:33:07 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-17 14:33:13 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-17 14:33:19 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-17 14:33:31 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-18 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-18 03:10:31 - DEBUG - [Logger]: START APPLICATION
+2025-10-18 03:10:32 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-18 03:10:40 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-18 03:10:40 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-18 03:10:40 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-18 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-18 16:03:18 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-19 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-19 03:10:31 - DEBUG - [Logger]: START APPLICATION
+2025-10-19 03:10:32 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-19 03:10:40 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-19 03:10:40 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-19 03:10:40 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-19 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-19 14:07:20 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-19 14:07:35 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-19 14:07:42 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-19 14:19:33 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-19 14:19:33 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-19 14:19:35 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-19 14:19:35 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-19 14:19:39 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-19 14:19:47 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-19 14:19:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-19 14:20:03 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-19 14:20:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-19 14:20:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-19 14:20:27 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 7
+2025-10-19 14:20:35 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 8
+2025-10-19 14:20:43 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 9
+2025-10-19 14:20:51 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 10
+2025-10-19 14:20:59 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 11
+2025-10-19 14:21:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 12
+2025-10-19 14:21:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/3 - Payload: leds_idle
+2025-10-19 14:21:15 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-19 14:21:15 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-19 14:21:25 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-19 14:21:38 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-19 14:21:49 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-19 15:34:55 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-19 15:34:55 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-19 15:34:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-19 15:34:59 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-19 15:35:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-19 15:35:15 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-19 15:35:23 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-19 15:35:31 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 5
+2025-10-19 15:35:39 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 6
+2025-10-19 15:35:47 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 7
+2025-10-19 15:35:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 8
+2025-10-19 15:36:03 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 9
+2025-10-19 15:36:11 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 10
+2025-10-19 15:36:19 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 11
+2025-10-19 15:36:27 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 12
+2025-10-19 15:36:31 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/state/3 - Payload: leds_idle
+2025-10-19 15:36:33 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-19 15:36:33 - INFO - [ScenePlayer]: pausing Audio3

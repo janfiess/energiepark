@@ -1,0 +1,135 @@
+2025-10-27 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-27 03:10:30 - DEBUG - [Logger]: START APPLICATION
+2025-10-27 03:10:32 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-27 03:10:40 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-27 03:10:40 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-27 03:10:40 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-27 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-27 10:06:51 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-27 10:06:51 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-27 10:06:55 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-27 10:07:01 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-27 10:07:01 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-27 10:07:03 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: play
+2025-10-27 10:07:03 - INFO - [ScenePlayer]: playing now Audio1
+2025-10-27 10:07:07 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/1 - Payload: 1
+2025-10-27 10:07:11 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-27 10:07:11 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-27 10:07:40 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-27 10:07:45 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-27 10:07:49 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-27 10:13:38 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-27 10:13:38 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-27 10:13:38 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-27 10:13:42 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-27 10:13:50 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-27 10:13:58 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 3
+2025-10-27 10:14:06 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 4
+2025-10-27 10:14:13 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-27 10:14:13 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-27 10:14:24 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-27 10:14:24 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-27 10:14:24 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-27 10:14:28 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-27 10:14:35 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-27 10:14:35 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-28 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-28 03:10:33 - DEBUG - [Logger]: START APPLICATION
+2025-10-28 03:10:34 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-28 03:10:38 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-28 03:10:38 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-28 03:10:38 - INFO - [MQTT_in]: topic: holz/player/audio/2   |   payload: pause
+2025-10-28 03:10:38 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-28 03:10:39 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-28 03:10:39 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-28 03:10:40 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-28 03:10:40 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-28 03:10:42 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-28 03:10:42 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-28 03:10:42 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-28 03:10:42 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-28 03:15:20 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-28 03:15:20 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-29 03:10:30 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-29 03:11:04 - DEBUG - [Logger]: START APPLICATION
+2025-10-29 03:11:06 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-29 03:11:13 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-29 03:11:13 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-29 03:11:13 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-29 03:11:13 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-29 14:19:42 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: play
+2025-10-29 14:19:42 - INFO - [ScenePlayer]: playing now Audio4
+2025-10-29 14:19:46 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 1
+2025-10-29 14:19:54 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/4 - Payload: 2
+2025-10-29 14:19:55 - INFO - [MQTT_in]: topic: holz/player/audio/4   |   payload: pause
+2025-10-29 14:19:55 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-29 14:19:56 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-29 14:19:56 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-29 14:20:00 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 1
+2025-10-29 14:20:08 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 2
+2025-10-29 14:20:15 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-29 14:20:15 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-29 14:20:19 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-29 14:20:36 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:20:51 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-29 14:21:03 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:08 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:13 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:14 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:15 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:16 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:21:40 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-29 14:21:41 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-29 14:21:52 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:22:04 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-29 14:22:16 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 14:22:24 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:22:25 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:22:29 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-29 14:22:34 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-29 14:23:20 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:23:21 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-29 14:23:28 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-29 14:23:37 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-29 15:34:15 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: play
+2025-10-29 15:34:15 - INFO - [ScenePlayer]: playing now Audio3
+2025-10-29 15:34:15 - DEBUG - [MQTT_out]: MQTT OUT (not retained) --- Topic: holz/ledring/numsections/3 - Payload: 0
+2025-10-29 15:34:16 - INFO - [MQTT_in]: topic: holz/player/audio/3   |   payload: pause
+2025-10-29 15:34:16 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-30 03:10:30 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-30 03:11:17 - DEBUG - [Logger]: START APPLICATION
+2025-10-30 03:11:18 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-30 03:11:26 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-30 03:11:26 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-30 03:11:26 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-30 03:11:26 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-30 03:15:01 - INFO - [MQTT_in]: topic: holz/player/audio/1   |   payload: pause
+2025-10-30 03:15:01 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-31 03:10:30 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-10-31 03:11:02 - DEBUG - [Logger]: START APPLICATION
+2025-10-31 03:11:03 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-10-31 03:11:11 - INFO - [ScenePlayer]: pausing Audio1
+2025-10-31 03:11:11 - INFO - [ScenePlayer]: pausing Audio2
+2025-10-31 03:11:11 - INFO - [ScenePlayer]: pausing Audio3
+2025-10-31 03:11:11 - INFO - [ScenePlayer]: pausing Audio4
+2025-10-31 13:35:45 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-10-31 13:35:57 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 1B047A00
+2025-10-31 13:36:03 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-31 13:36:10 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-31 13:36:11 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 57DD7900
+2025-10-31 13:36:18 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: 67BC7A00
+2025-10-31 13:36:27 - INFO - [MQTT_in]: topic: holz/rfid   |   payload: C6937A00
+2025-11-01 03:10:30 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-11-01 03:11:02 - DEBUG - [Logger]: START APPLICATION
+2025-11-01 03:11:03 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-11-01 03:11:11 - INFO - [ScenePlayer]: pausing Audio1
+2025-11-01 03:11:11 - INFO - [ScenePlayer]: pausing Audio2
+2025-11-01 03:11:11 - INFO - [ScenePlayer]: pausing Audio3
+2025-11-01 03:11:11 - INFO - [ScenePlayer]: pausing Audio4
+2025-11-02 03:10:00 - DEBUG - [Logger]: CLOSE APPLICATION
+2025-11-02 03:10:33 - DEBUG - [Logger]: START APPLICATION
+2025-11-02 03:10:34 - INFO - [MQTT_in]: Connection to an MQTT broker established
+2025-11-02 03:10:42 - INFO - [ScenePlayer]: pausing Audio1
+2025-11-02 03:10:42 - INFO - [ScenePlayer]: pausing Audio2
+2025-11-02 03:10:42 - INFO - [ScenePlayer]: pausing Audio3
+2025-11-02 03:10:42 - INFO - [ScenePlayer]: pausing Audio4
